@@ -363,6 +363,20 @@
   .paste-hint {
     font-size: 0.7rem; color: var(--fl-muted); line-height: 1.5;
   }
+  .paste-hint strong { color: var(--fl-green-dark); }
+  .import-btn {
+    background: var(--fl-green); color: #fff; border: none;
+    padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em; white-space: nowrap;
+  }
+  .import-btn:hover { background: var(--fl-green-dark); }
+  .import-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .prize-input {
+    padding: 0.5rem 0.75rem; border: 1px solid var(--fl-border); border-radius: 8px;
+    font-size: 0.8rem; font-family: inherit; outline: none; transition: border-color 0.2s;
+    background: #fff; color: #1a1a1a;
+  }
+  .prize-input:focus { border-color: var(--fl-green); }
 
   /* Tables */
   .data-table {
@@ -529,8 +543,9 @@
     <div class="header-logos">
       <img src="images/fourlines-logo-white.png" alt="FOURLINES">
     </div>
-    <div style="display:flex;align-items:center;gap:1rem;">
+    <div style="display:flex;align-items:center;gap:0.75rem;">
       <span class="header-title">2026 Prize Draw</span>
+      <button class="settings-toggle" id="refreshSheetBtn" title="Refresh from Google Sheet" style="display:none;padding:0.5rem 0.75rem;">&#8635;</button>
       <button class="settings-toggle" id="openSettings">Settings</button>
     </div>
   </header>
@@ -637,6 +652,20 @@
     <button class="close-settings" id="closeSettings">&times;</button>
   </div>
   <div class="settings-body">
+
+    <!-- Google Sheet section -->
+    <div class="settings-section">
+      <h3>Google Sheet Link</h3>
+      <div class="paste-hint" style="margin-bottom:0.5rem;">
+        Link a public Google Sheet with two tabs: <strong>Participants</strong> (Name, Tickets) and <strong>Prizes</strong> (Name, Description, Value).
+        The sheet must be published to the web (File &gt; Share &gt; Publish to web).
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <input class="prize-input" id="sheetUrl" type="text" placeholder="Paste Google Sheet URL here..." style="flex:1;font-size:0.8rem;">
+        <button class="import-btn" id="fetchSheetBtn">Fetch</button>
+      </div>
+      <div id="sheetStatus" style="font-size:0.7rem;margin-top:0.4rem;color:var(--fl-muted);"></div>
+    </div>
 
     <!-- Participants section -->
     <div class="settings-section">
@@ -918,8 +947,10 @@ $('resetAll').onclick = () => {
 };
 
 // ---- Persistence ----
+let sheetUrl = '';
+
 function saveState() {
-  localStorage.setItem('squallPicker', JSON.stringify({ participants, prizes, history }));
+  localStorage.setItem('squallPicker', JSON.stringify({ participants, prizes, history, sheetUrl }));
 }
 function loadState() {
   try {
@@ -928,9 +959,137 @@ function loadState() {
       participants = data.participants || [];
       prizes = data.prizes || [];
       history = data.history || [];
+      sheetUrl = data.sheetUrl || '';
     }
   } catch(e) {}
+  $('sheetUrl').value = sheetUrl;
+  if (sheetUrl) $('refreshSheetBtn').style.display = '';
 }
+
+// ---- Google Sheet fetch ----
+function extractSheetId(url) {
+  const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+function csvToRows(csv) {
+  const rows = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < csv.length; i++) {
+    const ch = csv[i];
+    if (ch === '"') {
+      if (inQuotes && csv[i+1] === '"') { current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (ch === '\n' && !inQuotes) {
+      rows.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  if (current.trim()) rows.push(current);
+  return rows.map(r => {
+    const cols = [];
+    let col = '';
+    let q = false;
+    for (let i = 0; i < r.length; i++) {
+      const ch = r[i];
+      if (ch === '"') {
+        if (q && r[i+1] === '"') { col += '"'; i++; }
+        else q = !q;
+      } else if (ch === ',' && !q) {
+        cols.push(col.trim());
+        col = '';
+      } else {
+        col += ch;
+      }
+    }
+    cols.push(col.trim());
+    return cols;
+  });
+}
+
+async function fetchSheet(url, tabName) {
+  const sheetId = extractSheetId(url);
+  if (!sheetId) throw new Error('Invalid Google Sheet URL');
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+  const resp = await fetch(csvUrl);
+  if (!resp.ok) throw new Error(`Could not fetch "${tabName}" tab (${resp.status})`);
+  const text = await resp.text();
+  return csvToRows(text);
+}
+
+async function fetchFromSheet(url) {
+  const status = $('sheetStatus');
+  status.textContent = 'Fetching...';
+  status.style.color = 'var(--fl-muted)';
+
+  try {
+    // Fetch participants - preserve won state
+    const pRows = await fetchSheet(url, 'Participants');
+    const wonNames = new Set(participants.filter(p => p.won).map(p => p.name.toLowerCase()));
+    const wonMap = {};
+    participants.filter(p => p.won).forEach(p => { wonMap[p.name.toLowerCase()] = p; });
+
+    participants = [];
+    for (let i = 0; i < pRows.length; i++) {
+      const row = pRows[i];
+      const name = (row[0] || '').trim();
+      if (!name || name.toLowerCase() === 'name') continue; // skip header
+      const tickets = parseInt(row[1]) || 1;
+      const lower = name.toLowerCase();
+      if (wonNames.has(lower)) {
+        participants.push(wonMap[lower]);
+      } else {
+        participants.push({ name, tickets, won: false, wonPrize: '' });
+      }
+    }
+
+    // Fetch prizes - preserve drawn state
+    const prRows = await fetchSheet(url, 'Prizes');
+    const drawnMap = {};
+    prizes.filter(p => p.drawn).forEach(p => { drawnMap[p.name.toLowerCase()] = p; });
+
+    prizes = [];
+    for (let i = 0; i < prRows.length; i++) {
+      const row = prRows[i];
+      const name = (row[0] || '').trim();
+      if (!name || name.toLowerCase() === 'name' || name.toLowerCase() === 'prize name' || name.toLowerCase() === 'prize') continue;
+      const description = (row[1] || '').trim();
+      const value = (row[2] || '').trim();
+      const lower = name.toLowerCase();
+      if (drawnMap[lower]) {
+        prizes.push(drawnMap[lower]);
+      } else {
+        prizes.push({ name, value, description, drawn: false, winner: '' });
+      }
+    }
+
+    sheetUrl = url;
+    $('refreshSheetBtn').style.display = '';
+    status.textContent = 'Loaded ' + participants.length + ' participants and ' + prizes.length + ' prizes.';
+    status.style.color = 'var(--fl-green-dark)';
+
+    renderParticipantsTable();
+    renderPrizesList();
+    updateUI();
+    saveState();
+  } catch (e) {
+    status.textContent = 'Error: ' + e.message;
+    status.style.color = 'var(--fl-coral)';
+  }
+}
+
+$('fetchSheetBtn').onclick = () => {
+  const url = $('sheetUrl').value.trim();
+  if (!url) return;
+  fetchFromSheet(url);
+};
+
+$('refreshSheetBtn').onclick = () => {
+  if (sheetUrl) fetchFromSheet(sheetUrl);
+};
 
 // ---- Update main UI ----
 function updateUI() {
