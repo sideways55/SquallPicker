@@ -1089,7 +1089,11 @@ async function fetchFromSheet(url) {
       if (!isNaN(numVal) && numVal > 0) {
         value = '$' + numVal.toLocaleString('en-US', { minimumFractionDigits: numVal % 1 ? 2 : 0 });
       }
-      const ignore = (row[3] || '').split(/[,;\n\r\t|]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+      const ignore = [];
+      for (let c = 3; c < row.length && c < 26; c++) {
+        const cell = (row[c] || '').trim();
+        if (cell) cell.split(/[,;\n\r\t|]+/).forEach(s => { const v = s.trim().toLowerCase(); if (v) ignore.push(v); });
+      }
       const lower = name.toLowerCase();
       if (drawnMap[lower]) {
         drawnMap[lower].ignore = ignore;
