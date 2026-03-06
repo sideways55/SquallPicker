@@ -1089,7 +1089,7 @@ async function fetchFromSheet(url) {
       if (!isNaN(numVal) && numVal > 0) {
         value = '$' + numVal.toLocaleString('en-US', { minimumFractionDigits: numVal % 1 ? 2 : 0 });
       }
-      const ignore = (row[3] || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const ignore = (row[3] || '').split(/[,;\n\r\t|]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
       const lower = name.toLowerCase();
       if (drawnMap[lower]) {
         drawnMap[lower].ignore = ignore;
