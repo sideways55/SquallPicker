@@ -1284,21 +1284,22 @@ drawBtn.onclick = () => {
   const prize = prizes[selectedPrizeIdx];
   if (!prize || prize.drawn) return;
   const ignoreList = (prize.ignore || []);
-  const active = participants.filter(p => !p.won && !ignoreList.includes(p.name.toLowerCase()));
-  if (active.length === 0) return;
+  const allActive = participants.filter(p => !p.won);
+  const eligible = allActive.filter(p => !ignoreList.includes(p.name.toLowerCase()));
+  if (eligible.length === 0) return;
 
   isSpinning = true;
   drawBtn.disabled = true;
   drawBtn.classList.add('spinning');
   drawBtn.textContent = 'Drawing...';
 
-  const winner = weightedPick(active);
+  const winner = weightedPick(eligible);
 
-  // Build a long spin track with winner at end
+  // Build a long spin track with winner at end - show ALL active participants in animation
   const trackNames = [];
   const totalSpinItems = 60 + Math.floor(Math.random() * 20);
   for (let i = 0; i < totalSpinItems - 1; i++) {
-    trackNames.push(active[Math.floor(Math.random() * active.length)].name);
+    trackNames.push(allActive[Math.floor(Math.random() * allActive.length)].name);
   }
   trackNames.push(winner.name);
 
