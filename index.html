@@ -973,15 +973,16 @@ function extractSheetId(url) {
 }
 
 function csvToRows(csv) {
+  // Normalize line endings
+  csv = csv.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // Split into rows respecting quoted newlines
   const rows = [];
   let current = '';
   let inQuotes = false;
   for (let i = 0; i < csv.length; i++) {
     const ch = csv[i];
-    if (ch === '"') {
-      if (inQuotes && csv[i+1] === '"') { current += '"'; i++; }
-      else inQuotes = !inQuotes;
-    } else if (ch === '\n' && !inQuotes) {
+    if (ch === '"') inQuotes = !inQuotes;
+    if (ch === '\n' && !inQuotes) {
       rows.push(current);
       current = '';
     } else {
@@ -989,6 +990,7 @@ function csvToRows(csv) {
     }
   }
   if (current.trim()) rows.push(current);
+  // Parse each row into columns, handling quoted fields with commas
   return rows.map(r => {
     const cols = [];
     let col = '';
@@ -997,13 +999,13 @@ function csvToRows(csv) {
       const ch = r[i];
       if (ch === '"') {
         if (q && r[i+1] === '"') { col += '"'; i++; }
-        else q = !q;
+        else { q = !q; continue; }
       } else if (ch === ',' && !q) {
         cols.push(col.trim());
         col = '';
-      } else {
-        col += ch;
+        continue;
       }
+      col += ch;
     }
     cols.push(col.trim());
     return cols;
