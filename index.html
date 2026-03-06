@@ -296,24 +296,9 @@
     border-radius: 999px; font-weight: 700;
   }
 
-  /* Paste area */
-  .paste-area {
-    width: 100%; min-height: 100px; padding: 0.75rem; border: 2px dashed var(--fl-border);
-    border-radius: 10px; font-family: 'Inter', monospace; font-size: 0.8rem;
-    resize: vertical; outline: none; transition: border-color 0.2s; color: #1a1a1a;
-    background: var(--fl-grey);
-  }
-  .paste-area:focus { border-color: var(--fl-green); }
-  .paste-area::placeholder { color: var(--fl-muted); }
   .paste-hint {
-    font-size: 0.7rem; color: var(--fl-muted); margin-top: 0.5rem; line-height: 1.5;
+    font-size: 0.7rem; color: var(--fl-muted); line-height: 1.5;
   }
-  .import-btn {
-    margin-top: 0.75rem; background: var(--fl-green); color: #fff; border: none;
-    padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
-    cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
-  }
-  .import-btn:hover { background: var(--fl-green-dark); }
 
   /* Tables */
   .data-table {
@@ -340,23 +325,23 @@
     border-radius: 999px; font-weight: 700; letter-spacing: 0.05em;
   }
 
-  /* Prize inputs */
-  .prize-row {
-    display: grid; grid-template-columns: 40px 1fr 80px 1fr 40px;
-    gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;
+  /* Editable table cells */
+  .data-table td.editable {
+    padding: 0;
   }
-  .prize-row .order-num {
-    width: 30px; height: 30px; background: var(--fl-navy); color: #fff;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem; font-weight: 700;
+  .data-table td.editable input {
+    width: 100%; padding: 0.5rem 0.75rem; border: none; background: transparent;
+    font-family: inherit; font-size: 0.8rem; outline: none; color: #1a1a1a;
   }
-  .prize-input {
-    padding: 0.5rem 0.75rem; border: 1px solid var(--fl-border); border-radius: 8px;
-    font-size: 0.8rem; font-family: inherit; outline: none; transition: border-color 0.2s;
-    background: #fff;
+  .data-table td.editable input:focus {
+    background: rgba(91,207,165,0.08);
   }
-  .prize-input:focus { border-color: var(--fl-green); }
-  .prize-input.small { text-align: center; }
+  .data-table td.editable input::placeholder { color: #ccc; }
+  .order-num {
+    width: 24px; height: 24px; background: var(--fl-navy); color: #fff;
+    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700;
+  }
   .add-prize-btn {
     display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem;
     background: none; border: 1px dashed var(--fl-border); color: var(--fl-muted);
@@ -411,8 +396,7 @@
     .settings-panel { width: 100%; max-width: 100%; }
     .settings-header { padding: 1rem 1.25rem; }
     .settings-body { padding: 1.25rem; }
-    .prize-row { grid-template-columns: 30px 1fr 70px 1fr 36px; gap: 0.4rem; }
-    .prize-input { padding: 0.45rem 0.5rem; font-size: 0.75rem; }
+    .desc-col { display: none; }
   }
 
   /* Responsive - Mobile */
@@ -452,9 +436,7 @@
     .settings-header h2 { font-size: 0.95rem; }
     .settings-body { padding: 1rem; }
     .settings-section { margin-bottom: 2rem; }
-    .paste-area { min-height: 80px; font-size: 0.75rem; }
-    .prize-row { grid-template-columns: 28px 1fr 60px 36px; }
-    .prize-row .desc-col { display: none; }
+    .desc-col { display: none; }
     .data-table { font-size: 0.75rem; }
     .data-table th { padding: 0.5rem; font-size: 0.6rem; }
     .data-table td { padding: 0.4rem 0.5rem; }
@@ -574,14 +556,10 @@
         Participants
         <span class="section-badge" id="participantCount">0</span>
       </h3>
-      <textarea class="paste-area" id="pasteArea" placeholder="Paste from Excel here...&#10;&#10;Format: Name [TAB] Tickets&#10;e.g.&#10;John Smith&#9;5&#10;Jane Doe&#9;3&#10;Mike Wilson&#9;1"></textarea>
-      <div class="paste-hint">
-        Paste directly from Excel - each row should have a Name and Ticket count separated by a tab.
-        If no ticket count is provided, it defaults to 1.
+      <div class="paste-hint" style="margin-bottom:0.75rem;">
+        Paste directly from Excel into the table below, or type names manually. Tab separates Name and Tickets.
       </div>
-      <button class="import-btn" id="importBtn">Import Participants</button>
-
-      <div class="table-wrapper" style="margin-top:1rem;" id="participantsTableWrapper">
+      <div class="table-wrapper" id="participantsTableWrapper">
         <table class="data-table" id="participantsTable">
           <thead>
             <tr>
@@ -594,6 +572,7 @@
           <tbody id="participantsBody"></tbody>
         </table>
       </div>
+      <button class="add-prize-btn" id="addParticipantBtn" style="margin-top:0.5rem;">+ Add Participant</button>
     </div>
 
     <!-- Prizes section -->
@@ -602,8 +581,22 @@
         Prizes
         <span class="section-badge" id="prizeCount">0</span>
       </h3>
-      <div id="prizesList"></div>
-      <button class="add-prize-btn" id="addPrizeBtn">+ Add Prize</button>
+      <div class="table-wrapper" id="prizesTableWrapper">
+        <table class="data-table" id="prizesTable">
+          <thead>
+            <tr>
+              <th style="width:40px;">#</th>
+              <th>Prize Name</th>
+              <th style="width:90px;">Value</th>
+              <th class="desc-col">Description</th>
+              <th style="text-align:center;width:70px;">Status</th>
+              <th style="width:40px;"></th>
+            </tr>
+          </thead>
+          <tbody id="prizesBody"></tbody>
+        </table>
+      </div>
+      <button class="add-prize-btn" id="addPrizeBtn" style="margin-top:0.5rem;">+ Add Prize</button>
     </div>
 
     <!-- Actions -->
@@ -658,25 +651,24 @@ function closeSettings() {
 $('closeSettings').onclick = closeSettings;
 $('settingsOverlay').onclick = closeSettings;
 
-// ---- Import participants from paste ----
-$('importBtn').onclick = () => {
-  const raw = $('pasteArea').value.trim();
-  if (!raw) return;
-  const lines = raw.split('\n');
+// ---- Paste handler for participants table ----
+$('participantsTable').addEventListener('paste', (e) => {
+  const clipText = (e.clipboardData || window.clipboardData).getData('text');
+  const lines = clipText.split('\n');
+  if (lines.length <= 1) return; // let normal paste handle single values
+  e.preventDefault();
   for (const line of lines) {
     const parts = line.split('\t');
     const name = (parts[0] || '').trim();
     if (!name) continue;
     const tickets = parseInt(parts[1]) || 1;
-    // Don't add duplicates
     if (!participants.find(p => p.name.toLowerCase() === name.toLowerCase())) {
       participants.push({ name, tickets, won: false, wonPrize: '' });
     }
   }
-  $('pasteArea').value = '';
   renderParticipantsTable();
   updateUI();
-};
+});
 
 // ---- Render participants table ----
 function renderParticipantsTable() {
@@ -686,14 +678,27 @@ function renderParticipantsTable() {
     const tr = document.createElement('tr');
     if (p.won) tr.style.opacity = '0.4';
     tr.innerHTML = `
-      <td>${escHtml(p.name)}</td>
-      <td class="tickets-cell">${p.tickets}</td>
+      <td class="editable"><input type="text" value="${escAttr(p.name)}" data-idx="${i}" data-field="name" placeholder="Name"></td>
+      <td class="editable"><input type="number" value="${p.tickets}" data-idx="${i}" data-field="tickets" min="1" style="text-align:center;"></td>
       <td style="text-align:center;">${p.won ? '<span class="won-badge">WON</span>' : '<span style="color:#999;font-size:0.75rem;">Active</span>'}</td>
       <td><button class="remove-btn" data-idx="${i}">&times;</button></td>
     `;
     tbody.appendChild(tr);
   });
   $('participantCount').textContent = participants.filter(p => !p.won).length;
+
+  // Bind inputs
+  tbody.querySelectorAll('input').forEach(inp => {
+    inp.oninput = () => {
+      const idx = parseInt(inp.dataset.idx);
+      const field = inp.dataset.field;
+      if (field === 'tickets') {
+        participants[idx].tickets = Math.max(1, parseInt(inp.value) || 1);
+      } else {
+        participants[idx][field] = inp.value;
+      }
+    };
+  });
 
   // Bind remove buttons
   tbody.querySelectorAll('.remove-btn').forEach(btn => {
@@ -705,31 +710,61 @@ function renderParticipantsTable() {
   });
 }
 
+// ---- Add participant ----
+$('addParticipantBtn').onclick = () => {
+  participants.push({ name: '', tickets: 1, won: false, wonPrize: '' });
+  renderParticipantsTable();
+  // Focus the new name input
+  const inputs = $('participantsBody').querySelectorAll('input[data-field="name"]');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+};
+
+// ---- Paste handler for prizes table ----
+$('prizesTable').addEventListener('paste', (e) => {
+  const clipText = (e.clipboardData || window.clipboardData).getData('text');
+  const lines = clipText.split('\n');
+  if (lines.length <= 1) return;
+  e.preventDefault();
+  for (const line of lines) {
+    const parts = line.split('\t');
+    const name = (parts[0] || '').trim();
+    if (!name) continue;
+    const value = (parts[1] || '').trim();
+    const description = (parts[2] || '').trim();
+    prizes.push({ name, value, description, drawn: false, winner: '' });
+  }
+  renderPrizesList();
+  updateUI();
+});
+
 // ---- Prizes ----
 function renderPrizesList() {
-  const container = $('prizesList');
-  container.innerHTML = '';
+  const tbody = $('prizesBody');
+  tbody.innerHTML = '';
   prizes.forEach((p, i) => {
-    const div = document.createElement('div');
-    div.className = 'prize-row';
-    div.innerHTML = `
-      <div class="order-num">${i + 1}</div>
-      <input class="prize-input" placeholder="Prize name" value="${escAttr(p.name)}" data-idx="${i}" data-field="name">
-      <input class="prize-input small" placeholder="$0" value="${escAttr(p.value)}" data-idx="${i}" data-field="value">
-      <input class="prize-input desc-col" placeholder="Description" value="${escAttr(p.description)}" data-idx="${i}" data-field="description">
-      <button class="remove-btn" data-idx="${i}">&times;</button>
+    const tr = document.createElement('tr');
+    if (p.drawn) tr.style.opacity = '0.4';
+    tr.innerHTML = `
+      <td style="text-align:center;"><span class="order-num">${i + 1}</span></td>
+      <td class="editable"><input type="text" value="${escAttr(p.name)}" data-idx="${i}" data-field="name" placeholder="Prize name"></td>
+      <td class="editable"><input type="text" value="${escAttr(p.value)}" data-idx="${i}" data-field="value" placeholder="$0" style="text-align:center;"></td>
+      <td class="editable desc-col"><input type="text" value="${escAttr(p.description)}" data-idx="${i}" data-field="description" placeholder="Description"></td>
+      <td style="text-align:center;">${p.drawn ? '<span class="won-badge">' + escHtml(p.winner) + '</span>' : '<span style="color:#999;font-size:0.75rem;">Pending</span>'}</td>
+      <td><button class="remove-btn" data-idx="${i}">&times;</button></td>
     `;
-    container.appendChild(div);
+    tbody.appendChild(tr);
   });
   $('prizeCount').textContent = prizes.filter(p => !p.drawn).length;
 
   // Bind inputs
-  container.querySelectorAll('.prize-input').forEach(inp => {
+  tbody.querySelectorAll('input').forEach(inp => {
     inp.oninput = () => {
       prizes[parseInt(inp.dataset.idx)][inp.dataset.field] = inp.value;
     };
   });
-  container.querySelectorAll('.remove-btn').forEach(btn => {
+
+  // Bind remove buttons
+  tbody.querySelectorAll('.remove-btn').forEach(btn => {
     btn.onclick = () => {
       prizes.splice(parseInt(btn.dataset.idx), 1);
       renderPrizesList();
@@ -741,6 +776,8 @@ function renderPrizesList() {
 $('addPrizeBtn').onclick = () => {
   prizes.push({ name: '', value: '', description: '', drawn: false, winner: '' });
   renderPrizesList();
+  const inputs = $('prizesBody').querySelectorAll('input[data-field="name"]');
+  if (inputs.length) inputs[inputs.length - 1].focus();
 };
 
 // ---- Save & Reset ----
