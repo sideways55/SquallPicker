@@ -106,7 +106,7 @@
     color: #fff; font-size: 1.8rem; font-weight: 800; font-family: inherit;
     padding: 0.4rem 2.5rem 0.4rem 1rem; border-radius: 10px; cursor: pointer;
     outline: none; appearance: none; text-align: center; text-align-last: center;
-    margin-bottom: 0.25rem; max-width: 500px; width: auto; display: inline-block;
+    margin-bottom: 0.25rem; max-width: 90vw;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%235BCFA5' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5l6.5 6 6.5-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 0.75rem center;
     transition: border-color 0.2s;
@@ -913,6 +913,17 @@ $('resetDrawBtn').onclick = () => {
 };
 
 // ---- Prize select change ----
+function resizePrizeSelect() {
+  const sel = $('prizeSelect');
+  const text = sel.options[sel.selectedIndex]?.text || '';
+  const measure = document.createElement('span');
+  measure.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:1.8rem;font-weight:800;font-family:Inter,sans-serif;';
+  measure.textContent = text;
+  document.body.appendChild(measure);
+  sel.style.width = (measure.offsetWidth + 60) + 'px'; // 60px for padding + arrow
+  document.body.removeChild(measure);
+}
+
 function updatePrizeDetails() {
   const sel = $('prizeSelect');
   const idx = parseInt(sel.value);
@@ -921,6 +932,7 @@ function updatePrizeDetails() {
     $('currentPrizeValue').textContent = p.value || '';
     $('currentPrizeDesc').textContent = p.description || '';
   }
+  resizePrizeSelect();
 }
 $('prizeSelect').addEventListener('change', updatePrizeDetails);
 
