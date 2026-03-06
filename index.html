@@ -572,7 +572,10 @@
           <tbody id="participantsBody"></tbody>
         </table>
       </div>
-      <button class="add-prize-btn" id="addParticipantBtn" style="margin-top:0.5rem;">+ Add Participant</button>
+      <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+        <button class="add-prize-btn" id="addParticipantBtn">+ Add Participant</button>
+        <button class="add-prize-btn" id="clearParticipantsBtn" style="color:var(--fl-coral);border-color:var(--fl-coral);">Clear All</button>
+      </div>
     </div>
 
     <!-- Prizes section -->
@@ -596,7 +599,10 @@
           <tbody id="prizesBody"></tbody>
         </table>
       </div>
-      <button class="add-prize-btn" id="addPrizeBtn" style="margin-top:0.5rem;">+ Add Prize</button>
+      <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+        <button class="add-prize-btn" id="addPrizeBtn">+ Add Prize</button>
+        <button class="add-prize-btn" id="clearPrizesBtn" style="color:var(--fl-coral);border-color:var(--fl-coral);">Clear All</button>
+      </div>
     </div>
 
     <!-- Actions -->
@@ -778,6 +784,26 @@ $('addPrizeBtn').onclick = () => {
   renderPrizesList();
   const inputs = $('prizesBody').querySelectorAll('input[data-field="name"]');
   if (inputs.length) inputs[inputs.length - 1].focus();
+};
+
+// ---- Clear participants / prizes ----
+$('clearParticipantsBtn').onclick = () => {
+  if (!confirm('Clear all participants?')) return;
+  participants = [];
+  history = [];
+  prizes.forEach(p => { p.drawn = false; p.winner = ''; });
+  renderParticipantsTable();
+  renderPrizesList();
+  updateUI();
+  saveState();
+};
+
+$('clearPrizesBtn').onclick = () => {
+  if (!confirm('Clear all prizes?')) return;
+  prizes = [];
+  renderPrizesList();
+  updateUI();
+  saveState();
 };
 
 // ---- Save & Reset ----
