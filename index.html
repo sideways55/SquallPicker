@@ -35,12 +35,44 @@
     position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
   }
   .snowflake {
-    position: absolute; top: -40px; color: rgba(255,255,255,0.15); font-size: 1.2rem;
+    position: absolute; top: -60px; color: #fff;
     animation: snowfall linear infinite;
+    text-shadow: 0 0 3px rgba(255,255,255,0.3);
   }
+  .snowflake.drift-left { animation-name: snowfall-left; }
+  .snowflake.drift-right { animation-name: snowfall-right; }
   @keyframes snowfall {
-    0% { transform: translateY(0) rotate(0deg); }
-    100% { transform: translateY(110vh) rotate(720deg); }
+    0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    5% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(110vh) translateX(0) rotate(360deg); opacity: 0; }
+  }
+  @keyframes snowfall-left {
+    0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    5% { opacity: 1; }
+    50% { transform: translateY(55vh) translateX(-80px) rotate(180deg); }
+    90% { opacity: 1; }
+    100% { transform: translateY(110vh) translateX(-30px) rotate(360deg); opacity: 0; }
+  }
+  @keyframes snowfall-right {
+    0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    5% { opacity: 1; }
+    50% { transform: translateY(55vh) translateX(80px) rotate(180deg); }
+    90% { opacity: 1; }
+    100% { transform: translateY(110vh) translateX(30px) rotate(360deg); opacity: 0; }
+  }
+  /* Misty squall overlay */
+  .squall-mist {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(255,255,255,0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(91,207,165,0.02) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(255,255,255,0.04) 0%, transparent 40%);
+    animation: mist-drift 20s ease-in-out infinite alternate;
+  }
+  @keyframes mist-drift {
+    0% { opacity: 0.6; transform: translateX(-20px); }
+    100% { opacity: 1; transform: translateX(20px); }
   }
 
   /* ---- Layout ---- */
@@ -484,6 +516,7 @@
 
 <!-- Snowflakes background -->
 <div class="snowflakes" id="snowflakes"></div>
+<div class="squall-mist"></div>
 
 <!-- Confetti -->
 <canvas id="confetti-canvas"></canvas>
@@ -685,16 +718,20 @@ const spinnerContainer = $('spinnerContainer');
 // ---- Snowflakes ----
 function createSnowflakes() {
   const container = $('snowflakes');
-  const flakes = ['*'];
-  for (let i = 0; i < 30; i++) {
+  const chars = ['\u2022', '\u2727', '\u2731', '\u2744', '\u00B7', '\u25CF'];
+  const drifts = ['', 'drift-left', 'drift-right'];
+  for (let i = 0; i < 80; i++) {
     const el = document.createElement('div');
-    el.className = 'snowflake';
-    el.textContent = flakes[0];
+    const drift = drifts[Math.floor(Math.random() * drifts.length)];
+    el.className = 'snowflake' + (drift ? ' ' + drift : '');
+    el.textContent = chars[Math.floor(Math.random() * chars.length)];
     el.style.left = Math.random() * 100 + '%';
-    el.style.fontSize = (0.6 + Math.random() * 1.2) + 'rem';
-    el.style.opacity = 0.05 + Math.random() * 0.15;
-    el.style.animationDuration = (8 + Math.random() * 15) + 's';
-    el.style.animationDelay = Math.random() * 10 + 's';
+    const size = 0.2 + Math.random() * 1.0;
+    el.style.fontSize = size + 'rem';
+    // Smaller = more transparent and slower (farther away)
+    el.style.opacity = (0.06 + size * 0.18);
+    el.style.animationDuration = (5 + Math.random() * 12) + 's';
+    el.style.animationDelay = Math.random() * 15 + 's';
     container.appendChild(el);
   }
 }
