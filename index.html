@@ -446,6 +446,30 @@
   }
   .btn-secondary:hover { background: rgba(255,107,74,0.05); }
 
+  /* Celebration picker */
+  .celebration-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+  }
+  .celeb-card {
+    border: 2px solid var(--fl-border); border-radius: 10px; padding: 0.75rem 0.5rem;
+    text-align: center; cursor: pointer; transition: all 0.2s; position: relative;
+    background: #fff;
+  }
+  .celeb-card:hover { border-color: var(--fl-green); background: rgba(91,207,165,0.03); }
+  .celeb-card.selected { border-color: var(--fl-green); background: rgba(91,207,165,0.08); }
+  .celeb-card.selected::after {
+    content: '\2713'; position: absolute; top: 4px; right: 6px;
+    color: var(--fl-green); font-size: 0.75rem; font-weight: 800;
+  }
+  .celeb-icon { font-size: 1.5rem; margin-bottom: 0.25rem; }
+  .celeb-name { font-size: 0.65rem; font-weight: 600; color: #333; letter-spacing: 0.05em; text-transform: uppercase; }
+  .celeb-preview {
+    margin-top: 0.4rem; background: none; border: 1px solid var(--fl-border);
+    color: var(--fl-muted); font-size: 0.6rem; padding: 2px 8px; border-radius: 4px;
+    cursor: pointer; font-weight: 500; transition: all 0.15s;
+  }
+  .celeb-preview:hover { border-color: var(--fl-green); color: var(--fl-green-dark); }
+
   .table-wrapper { max-height: 300px; overflow-y: auto; border: 1px solid var(--fl-border); border-radius: 10px; }
   .table-wrapper::-webkit-scrollbar { width: 4px; }
   .table-wrapper::-webkit-scrollbar-thumb { background: var(--fl-green); border-radius: 2px; }
@@ -475,6 +499,7 @@
     .settings-header { padding: 1rem 1.25rem; }
     .settings-body { padding: 1.25rem; }
     .desc-col { display: none; }
+    .celebration-grid { grid-template-columns: repeat(3, 1fr); }
   }
 
   /* Responsive - Mobile */
@@ -722,6 +747,15 @@
       </div>
     </div>
 
+    <!-- Celebrations section -->
+    <div class="settings-section">
+      <h3>Win Celebration</h3>
+      <div class="paste-hint" style="margin-bottom:0.75rem;">
+        Select one or more celebrations. If multiple are selected, a random one plays each draw.
+      </div>
+      <div class="celebration-grid" id="celebrationGrid"></div>
+    </div>
+
     <!-- Actions -->
     <div class="settings-actions">
       <button class="btn-primary" id="saveSettings">Save &amp; Close</button>
@@ -950,7 +984,7 @@ $('resetAll').onclick = () => {
 let sheetUrl = '';
 
 function saveState() {
-  localStorage.setItem('squallPicker', JSON.stringify({ participants, prizes, history, sheetUrl }));
+  localStorage.setItem('squallPicker', JSON.stringify({ participants, prizes, history, sheetUrl, selectedCelebrations }));
 }
 function loadState() {
   try {
@@ -960,10 +994,12 @@ function loadState() {
       prizes = data.prizes || [];
       history = data.history || [];
       sheetUrl = data.sheetUrl || '';
+      if (data.selectedCelebrations && data.selectedCelebrations.length) selectedCelebrations = data.selectedCelebrations;
     }
   } catch(e) {}
   $('sheetUrl').value = sheetUrl;
   if (sheetUrl) $('refreshSheetBtn').style.display = '';
+  renderCelebrationGrid();
 }
 
 // ---- Google Sheet fetch ----
@@ -1322,8 +1358,8 @@ drawBtn.onclick = () => {
         $('winnerPrizeValue').textContent = prize.value || '';
         $('winnerOverlay').classList.add('visible');
 
-        // Confetti
-        launchConfetti();
+        // Celebration animation
+        launchCelebration();
 
         // Play winner sound
         playWinnerSound();
@@ -1362,14 +1398,14 @@ function playWinnerSound() {
 // ---- Close winner overlay ----
 $('closeWinner').onclick = () => {
   $('winnerOverlay').classList.remove('visible');
-  stopConfetti();
+  stopCelebration();
 };
 
-// ---- Confetti ----
+// ---- Celebration System ----
 const confettiCanvas = $('confetti-canvas');
 const confettiCtx = confettiCanvas.getContext('2d');
-let confettiPieces = [];
-let confettiRunning = false;
+let celebrationRunning = false;
+let celebrationPieces = [];
 
 function resizeConfetti() {
   confettiCanvas.width = window.innerWidth;
@@ -1378,52 +1414,367 @@ function resizeConfetti() {
 window.addEventListener('resize', resizeConfetti);
 resizeConfetti();
 
-function launchConfetti() {
-  confettiPieces = [];
-  const colors = ['#5BCFA5', '#A8EDCE', '#FF6B4A', '#FFD700', '#fff', '#2E9B74', '#1B2D45'];
-  for (let i = 0; i < 150; i++) {
-    confettiPieces.push({
-      x: window.innerWidth / 2 + (Math.random() - 0.5) * 200,
-      y: window.innerHeight / 2,
-      vx: (Math.random() - 0.5) * 20,
-      vy: -Math.random() * 18 - 5,
-      w: 6 + Math.random() * 8,
-      h: 4 + Math.random() * 6,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      rotation: Math.random() * 360,
-      rotSpeed: (Math.random() - 0.5) * 15,
-      gravity: 0.25 + Math.random() * 0.15,
-    });
+function stopCelebration() { celebrationRunning = false; }
+
+// All celebration types
+const CELEBRATIONS = {
+  confetti: {
+    name: 'Confetti', icon: '\uD83C\uDF89',
+    launch() {
+      celebrationPieces = [];
+      const colors = ['#5BCFA5', '#A8EDCE', '#FF6B4A', '#FFD700', '#fff', '#2E9B74', '#1B2D45'];
+      for (let i = 0; i < 150; i++) {
+        celebrationPieces.push({
+          x: window.innerWidth / 2 + (Math.random() - 0.5) * 200,
+          y: window.innerHeight / 2,
+          vx: (Math.random() - 0.5) * 20,
+          vy: -Math.random() * 18 - 5,
+          w: 6 + Math.random() * 8, h: 4 + Math.random() * 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rot: Math.random() * 360, rotS: (Math.random() - 0.5) * 15,
+          grav: 0.25 + Math.random() * 0.15
+        });
+      }
+      celebrationRunning = true;
+      this.animate();
+    },
+    animate() {
+      if (!celebrationRunning) { confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); return; }
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let alive = false;
+      celebrationPieces.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += p.grav; p.vx *= 0.99; p.rot += p.rotS;
+        if (p.y < confettiCanvas.height + 50) alive = true;
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate(p.rot * Math.PI / 180);
+        confettiCtx.fillStyle = p.color;
+        confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        confettiCtx.restore();
+      });
+      if (alive) requestAnimationFrame(() => CELEBRATIONS.confetti.animate());
+      else celebrationRunning = false;
+    }
+  },
+
+  fireworks: {
+    name: 'Fireworks', icon: '\uD83C\uDF86',
+    launch() {
+      celebrationPieces = [];
+      celebrationRunning = true;
+      const colors = ['#5BCFA5', '#FF6B4A', '#FFD700', '#A8EDCE', '#FF69B4', '#00BFFF'];
+      // Launch 5 fireworks staggered
+      for (let f = 0; f < 5; f++) {
+        setTimeout(() => {
+          if (!celebrationRunning) return;
+          const cx = window.innerWidth * (0.2 + Math.random() * 0.6);
+          const cy = window.innerHeight * (0.15 + Math.random() * 0.35);
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          for (let i = 0; i < 60; i++) {
+            const angle = (Math.PI * 2 / 60) * i + Math.random() * 0.3;
+            const speed = 3 + Math.random() * 6;
+            celebrationPieces.push({
+              x: cx, y: cy,
+              vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+              life: 1, decay: 0.012 + Math.random() * 0.008,
+              color, size: 2 + Math.random() * 3, trail: []
+            });
+          }
+        }, f * 400);
+      }
+      this.animate();
+    },
+    animate() {
+      if (!celebrationRunning) { confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); return; }
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let alive = false;
+      celebrationPieces.forEach(p => {
+        if (p.life <= 0) return;
+        alive = true;
+        p.trail.push({ x: p.x, y: p.y, life: p.life });
+        if (p.trail.length > 6) p.trail.shift();
+        p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.vx *= 0.98; p.life -= p.decay;
+        // Draw trail
+        p.trail.forEach((t, i) => {
+          confettiCtx.beginPath();
+          confettiCtx.arc(t.x, t.y, p.size * (i / p.trail.length) * t.life, 0, Math.PI * 2);
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.globalAlpha = t.life * 0.3;
+          confettiCtx.fill();
+        });
+        // Draw particle
+        confettiCtx.globalAlpha = p.life;
+        confettiCtx.beginPath();
+        confettiCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        confettiCtx.fillStyle = p.color;
+        confettiCtx.fill();
+        confettiCtx.globalAlpha = 1;
+      });
+      if (alive) requestAnimationFrame(() => CELEBRATIONS.fireworks.animate());
+      else celebrationRunning = false;
+    }
+  },
+
+  snowstorm: {
+    name: 'Snowstorm', icon: '\u2744\uFE0F',
+    launch() {
+      celebrationPieces = [];
+      celebrationRunning = true;
+      for (let i = 0; i < 200; i++) {
+        celebrationPieces.push({
+          x: Math.random() * window.innerWidth,
+          y: -Math.random() * window.innerHeight,
+          size: 2 + Math.random() * 6,
+          speed: 2 + Math.random() * 5,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: 0.02 + Math.random() * 0.04,
+          opacity: 0.4 + Math.random() * 0.6
+        });
+      }
+      this.animate();
+    },
+    animate() {
+      if (!celebrationRunning) { confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); return; }
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let alive = false;
+      celebrationPieces.forEach(p => {
+        p.wobble += p.wobbleSpeed;
+        p.x += Math.sin(p.wobble) * 2;
+        p.y += p.speed;
+        if (p.y < confettiCanvas.height + 20) alive = true;
+        else { p.y = -10; p.x = Math.random() * window.innerWidth; }
+        confettiCtx.beginPath();
+        confettiCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        confettiCtx.fillStyle = `rgba(255,255,255,${p.opacity})`;
+        confettiCtx.fill();
+        // Glow
+        confettiCtx.beginPath();
+        confettiCtx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
+        confettiCtx.fillStyle = `rgba(255,255,255,${p.opacity * 0.15})`;
+        confettiCtx.fill();
+      });
+      if (alive && celebrationRunning) requestAnimationFrame(() => CELEBRATIONS.snowstorm.animate());
+      else { celebrationRunning = false; confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); }
+    }
+  },
+
+  stars: {
+    name: 'Shooting Stars', icon: '\u2B50',
+    launch() {
+      celebrationPieces = [];
+      celebrationRunning = true;
+      let spawned = 0;
+      const spawnStar = () => {
+        if (!celebrationRunning || spawned >= 25) return;
+        spawned++;
+        const fromLeft = Math.random() > 0.5;
+        celebrationPieces.push({
+          x: fromLeft ? -20 : window.innerWidth + 20,
+          y: Math.random() * window.innerHeight * 0.6,
+          vx: (fromLeft ? 1 : -1) * (8 + Math.random() * 12),
+          vy: 2 + Math.random() * 4,
+          size: 3 + Math.random() * 4,
+          life: 1, decay: 0.008 + Math.random() * 0.005,
+          color: ['#FFD700', '#5BCFA5', '#FF6B4A', '#A8EDCE', '#00BFFF'][Math.floor(Math.random() * 5)],
+          trail: []
+        });
+        setTimeout(spawnStar, 100 + Math.random() * 200);
+      };
+      spawnStar();
+      this.animate();
+    },
+    animate() {
+      if (!celebrationRunning) { confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); return; }
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let alive = false;
+      celebrationPieces.forEach(p => {
+        if (p.life <= 0) return;
+        alive = true;
+        p.trail.push({ x: p.x, y: p.y, life: p.life });
+        if (p.trail.length > 20) p.trail.shift();
+        p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+        // Trail
+        p.trail.forEach((t, i) => {
+          const alpha = (i / p.trail.length) * t.life * 0.6;
+          confettiCtx.beginPath();
+          confettiCtx.arc(t.x, t.y, p.size * (i / p.trail.length), 0, Math.PI * 2);
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.globalAlpha = alpha;
+          confettiCtx.fill();
+        });
+        // Head
+        confettiCtx.globalAlpha = p.life;
+        confettiCtx.beginPath();
+        confettiCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        confettiCtx.fillStyle = '#fff';
+        confettiCtx.fill();
+        confettiCtx.globalAlpha = 1;
+      });
+      if (alive || celebrationPieces.some(p => p.life > 0)) requestAnimationFrame(() => CELEBRATIONS.stars.animate());
+      else celebrationRunning = false;
+    }
+  },
+
+  rings: {
+    name: 'Shockwave', icon: '\uD83D\uDCA5',
+    launch() {
+      celebrationPieces = [];
+      celebrationRunning = true;
+      const colors = ['#5BCFA5', '#A8EDCE', '#FFD700', '#FF6B4A', '#00BFFF', '#fff'];
+      for (let i = 0; i < 6; i++) {
+        setTimeout(() => {
+          if (!celebrationRunning) return;
+          celebrationPieces.push({
+            x: window.innerWidth / 2 + (Math.random() - 0.5) * 200,
+            y: window.innerHeight / 2 + (Math.random() - 0.5) * 100,
+            radius: 0, maxRadius: 150 + Math.random() * 250,
+            speed: 4 + Math.random() * 4, life: 1,
+            color: colors[i % colors.length], width: 3 + Math.random() * 4
+          });
+        }, i * 250);
+      }
+      // Also add burst particles
+      setTimeout(() => {
+        const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+        for (let i = 0; i < 80; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1 + Math.random() * 8;
+          celebrationPieces.push({
+            x: cx, y: cy, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+            size: 2 + Math.random() * 3, life: 1, decay: 0.01 + Math.random() * 0.01,
+            color: colors[Math.floor(Math.random() * colors.length)], isParticle: true
+          });
+        }
+      }, 100);
+      this.animate();
+    },
+    animate() {
+      if (!celebrationRunning) { confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); return; }
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let alive = false;
+      celebrationPieces.forEach(p => {
+        if (p.life <= 0) return;
+        alive = true;
+        if (p.isParticle) {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life -= p.decay;
+          confettiCtx.globalAlpha = p.life;
+          confettiCtx.beginPath();
+          confettiCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.fill();
+          confettiCtx.globalAlpha = 1;
+        } else {
+          p.radius += p.speed;
+          p.life = Math.max(0, 1 - p.radius / p.maxRadius);
+          confettiCtx.globalAlpha = p.life * 0.8;
+          confettiCtx.beginPath();
+          confettiCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          confettiCtx.strokeStyle = p.color;
+          confettiCtx.lineWidth = p.width * p.life;
+          confettiCtx.stroke();
+          confettiCtx.globalAlpha = 1;
+        }
+      });
+      if (alive) requestAnimationFrame(() => CELEBRATIONS.rings.animate());
+      else celebrationRunning = false;
+    }
+  },
+
+  emoji: {
+    name: 'Emoji Rain', icon: '\uD83E\uDD29',
+    launch() {
+      celebrationPieces = [];
+      celebrationRunning = true;
+      const emojis = ['\uD83C\uDF89', '\uD83C\uDF8A', '\uD83C\uDFC6', '\u2B50', '\uD83D\uDD25', '\uD83C\uDF1F', '\uD83E\uDD47', '\uD83D\uDCAF', '\uD83C\uDF8E', '\u26F7\uFE0F', '\uD83C\uDFC2', '\uD83E\uDD43'];
+      for (let i = 0; i < 50; i++) {
+        celebrationPieces.push({
+          x: Math.random() * window.innerWidth,
+          y: -50 - Math.random() * 400,
+          vy: 3 + Math.random() * 5,
+          vx: (Math.random() - 0.5) * 3,
+          size: 20 + Math.random() * 30,
+          emoji: emojis[Math.floor(Math.random() * emojis.length)],
+          rot: Math.random() * 360,
+          rotS: (Math.random() - 0.5) * 8,
+          bounce: 0
+        });
+      }
+      this.animate();
+    },
+    animate() {
+      if (!celebrationRunning) { confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); return; }
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let alive = false;
+      celebrationPieces.forEach(p => {
+        p.y += p.vy; p.x += p.vx; p.rot += p.rotS;
+        p.vy += 0.15;
+        // Bounce off bottom
+        if (p.y > confettiCanvas.height - p.size && p.bounce < 2) {
+          p.vy = -Math.abs(p.vy) * 0.5;
+          p.bounce++;
+        }
+        if (p.y < confettiCanvas.height + 60) alive = true;
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate(p.rot * Math.PI / 180);
+        confettiCtx.font = p.size + 'px serif';
+        confettiCtx.textAlign = 'center';
+        confettiCtx.textBaseline = 'middle';
+        confettiCtx.fillText(p.emoji, 0, 0);
+        confettiCtx.restore();
+      });
+      if (alive) requestAnimationFrame(() => CELEBRATIONS.emoji.animate());
+      else celebrationRunning = false;
+    }
   }
-  confettiRunning = true;
-  animateConfetti();
-}
+};
 
-function animateConfetti() {
-  if (!confettiRunning) { confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); return; }
+// Celebration selection state
+let selectedCelebrations = ['confetti'];
+
+function launchCelebration() {
+  const active = selectedCelebrations.length > 0 ? selectedCelebrations : ['confetti'];
+  const pick = active[Math.floor(Math.random() * active.length)];
+  stopCelebration();
   confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-  let alive = false;
-  confettiPieces.forEach(p => {
-    p.x += p.vx;
-    p.y += p.vy;
-    p.vy += p.gravity;
-    p.vx *= 0.99;
-    p.rotation += p.rotSpeed;
-    if (p.y < confettiCanvas.height + 50) alive = true;
-    confettiCtx.save();
-    confettiCtx.translate(p.x, p.y);
-    confettiCtx.rotate(p.rotation * Math.PI / 180);
-    confettiCtx.fillStyle = p.color;
-    confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-    confettiCtx.restore();
-  });
-  if (alive) requestAnimationFrame(animateConfetti);
-  else confettiRunning = false;
+  setTimeout(() => CELEBRATIONS[pick].launch(), 50);
 }
 
-function stopConfetti() {
-  confettiRunning = false;
+// Render celebration grid in settings
+function renderCelebrationGrid() {
+  const grid = $('celebrationGrid');
+  grid.innerHTML = '';
+  Object.entries(CELEBRATIONS).forEach(([key, c]) => {
+    const card = document.createElement('div');
+    card.className = 'celeb-card' + (selectedCelebrations.includes(key) ? ' selected' : '');
+    card.innerHTML = `
+      <div class="celeb-icon">${c.icon}</div>
+      <div class="celeb-name">${c.name}</div>
+      <button class="celeb-preview" data-key="${key}">Preview</button>
+    `;
+    card.addEventListener('click', (e) => {
+      if (e.target.classList.contains('celeb-preview')) return;
+      const idx = selectedCelebrations.indexOf(key);
+      if (idx >= 0) {
+        if (selectedCelebrations.length > 1) selectedCelebrations.splice(idx, 1);
+      } else {
+        selectedCelebrations.push(key);
+      }
+      renderCelebrationGrid();
+      saveState();
+    });
+    card.querySelector('.celeb-preview').addEventListener('click', (e) => {
+      e.stopPropagation();
+      stopCelebration();
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      setTimeout(() => CELEBRATIONS[key].launch(), 50);
+      // Auto-stop preview after 4 seconds
+      setTimeout(() => stopCelebration(), 4000);
+    });
+    grid.appendChild(card);
+  });
 }
+renderCelebrationGrid();
 
 // ---- Helpers ----
 function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
