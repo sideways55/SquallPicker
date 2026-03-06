@@ -1453,10 +1453,19 @@ function escHtml(s) { const d = document.createElement('div'); d.textContent = s
 function escAttr(s) { return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
 // ---- Init ----
+const DEFAULT_SHEET = 'https://docs.google.com/spreadsheets/d/13Yy8L5Atj2b2G696JjJcjZOVPYizVBf1IZE2vCZYBR4/edit?usp=sharing';
 loadState();
+if (!sheetUrl) {
+  sheetUrl = DEFAULT_SHEET;
+  $('sheetUrl').value = sheetUrl;
+}
 renderParticipantsTable();
 renderPrizesList();
 updateUI();
+// Auto-fetch from sheet on first load or if no participants loaded yet
+if (sheetUrl && participants.length === 0) {
+  fetchFromSheet(sheetUrl);
+}
 </script>
 </body>
 </html>
