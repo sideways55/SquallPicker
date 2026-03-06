@@ -71,8 +71,8 @@
     animation: mist-drift 20s ease-in-out infinite alternate;
   }
   @keyframes mist-drift {
-    0% { opacity: 0.6; transform: translateX(-20px); }
-    100% { opacity: 1; transform: translateX(20px); }
+    0% { opacity: 0.4; transform: translateX(-10px); }
+    100% { opacity: 0.7; transform: translateX(10px); }
   }
 
   /* ---- Layout ---- */
@@ -783,17 +783,16 @@ function createSnowflakes() {
   const container = $('snowflakes');
   const chars = ['\u2022', '\u2727', '\u2731', '\u2744', '\u00B7', '\u25CF'];
   const drifts = ['', 'drift-left', 'drift-right'];
-  for (let i = 0; i < 80; i++) {
+  for (let i = 0; i < 40; i++) {
     const el = document.createElement('div');
     const drift = drifts[Math.floor(Math.random() * drifts.length)];
     el.className = 'snowflake' + (drift ? ' ' + drift : '');
     el.textContent = chars[Math.floor(Math.random() * chars.length)];
     el.style.left = Math.random() * 100 + '%';
-    const size = 0.2 + Math.random() * 1.0;
+    const size = 0.2 + Math.random() * 0.7;
     el.style.fontSize = size + 'rem';
-    // Smaller = more transparent and slower (farther away)
-    el.style.opacity = (0.06 + size * 0.18);
-    el.style.animationDuration = (5 + Math.random() * 12) + 's';
+    el.style.opacity = (0.03 + size * 0.08);
+    el.style.animationDuration = (10 + Math.random() * 18) + 's';
     el.style.animationDelay = Math.random() * 15 + 's';
     container.appendChild(el);
   }
