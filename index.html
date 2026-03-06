@@ -587,8 +587,8 @@
             <tr>
               <th style="width:40px;">#</th>
               <th>Prize Name</th>
-              <th style="width:90px;">Value</th>
               <th class="desc-col">Description</th>
+              <th style="width:90px;">Value</th>
               <th style="text-align:center;width:70px;">Status</th>
               <th style="width:40px;"></th>
             </tr>
@@ -747,8 +747,8 @@ function renderPrizesList() {
     tr.innerHTML = `
       <td style="text-align:center;"><span class="order-num">${i + 1}</span></td>
       <td class="editable"><input type="text" value="${escAttr(p.name)}" data-idx="${i}" data-field="name" placeholder="Prize name"></td>
-      <td class="editable"><input type="text" value="${escAttr(p.value)}" data-idx="${i}" data-field="value" placeholder="$0" style="text-align:center;"></td>
       <td class="editable desc-col"><input type="text" value="${escAttr(p.description)}" data-idx="${i}" data-field="description" placeholder="Description"></td>
+      <td class="editable"><input type="text" value="${escAttr(p.value)}" data-idx="${i}" data-field="value" placeholder="$0" style="text-align:center;"></td>
       <td style="text-align:center;">${p.drawn ? '<span class="won-badge">' + escHtml(p.winner) + '</span>' : '<span style="color:#999;font-size:0.75rem;">Pending</span>'}</td>
       <td><button class="remove-btn" data-idx="${i}">&times;</button></td>
     `;
