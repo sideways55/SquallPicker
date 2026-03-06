@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snowkite Squall 2026 - Prize Draw</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --fl-green: #5BCFA5;
+    --fl-green-dark: #2E9B74;
+    --fl-green-light: #A8EDCE;
+    --fl-navy: #1B2D45;
+    --fl-navy-light: #253d5c;
+    --fl-sand: #F5F0E8;
+    --fl-grey: #F0EFEB;
+    --fl-muted: #6B7280;
+    --fl-border: #E5E5E0;
+    --fl-coral: #FF6B4A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--fl-navy);
+    color: #fff;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ---- Snowflake background particles ---- */
+  .snowflakes {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .snowflake {
+    position: absolute; top: -40px; color: rgba(255,255,255,0.15); font-size: 1.2rem;
+    animation: snowfall linear infinite;
+  }
+  @keyframes snowfall {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(110vh) rotate(720deg); }
+  }
+
+  /* ---- Layout ---- */
+  .app-container { position: relative; z-index: 1; }
+
+  /* ---- Header ---- */
+  .header {
+    background: rgba(27,45,69,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(91,207,165,0.2);
+    padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-logos { display: flex; align-items: center; gap: 1.5rem; }
+  .header-logos img { height: 40px; width: auto; }
+  .header-title {
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--fl-green);
+  }
+  .four-lines-divider {
+    display: flex; gap: 6px; padding: 6px 0;
+  }
+  .four-lines-divider span {
+    flex: 1; height: 2px; background: var(--fl-green); border-radius: 2px; opacity: 0.5;
+  }
+  .settings-toggle {
+    background: rgba(91,207,165,0.15); border: 1px solid rgba(91,207,165,0.3);
+    color: var(--fl-green); padding: 0.5rem 1.25rem; border-radius: 999px;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer; letter-spacing: 0.1em;
+    text-transform: uppercase; transition: all 0.2s;
+  }
+  .settings-toggle:hover { background: var(--fl-green); color: var(--fl-navy); }
+
+  /* ---- Main Draw Area ---- */
+  .draw-area {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: calc(100vh - 80px); padding: 2rem; position: relative;
+  }
+  .draw-area .squall-logo { height: 100px; margin-bottom: 1rem; }
+  .draw-subtitle {
+    font-size: 0.85rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); margin-bottom: 2rem; font-weight: 500;
+  }
+
+  /* Prize display */
+  .current-prize-display {
+    text-align: center; margin-bottom: 2rem;
+  }
+  .current-prize-label {
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--fl-green); margin-bottom: 0.5rem; font-weight: 600;
+  }
+  .current-prize-name {
+    font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;
+  }
+  .current-prize-value {
+    font-size: 1rem; color: rgba(255,255,255,0.5); font-weight: 400;
+  }
+  .current-prize-desc {
+    font-size: 0.85rem; color: rgba(255,255,255,0.35); margin-top: 0.25rem;
+  }
+  .prize-select {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(91,207,165,0.3);
+    color: #fff; font-size: 1.8rem; font-weight: 800; font-family: inherit;
+    padding: 0.4rem 2.5rem 0.4rem 1rem; border-radius: 10px; cursor: pointer;
+    outline: none; appearance: none; text-align: center; margin-bottom: 0.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%235BCFA5' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5l6.5 6 6.5-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.75rem center;
+    transition: border-color 0.2s;
+  }
+  .prize-select:hover, .prize-select:focus { border-color: var(--fl-green); }
+  .prize-select option { background: var(--fl-navy); color: #fff; font-size: 1rem; }
+
+  /* Slot machine / name spinner */
+  .spinner-container {
+    width: 500px; max-width: 90vw; height: 260px; position: relative;
+    margin: 1rem 0 2rem; overflow: hidden; border-radius: 16px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(91,207,165,0.15);
+    box-shadow: 0 0 60px rgba(91,207,165,0.05);
+  }
+  .spinner-mask-top, .spinner-mask-bottom {
+    position: absolute; left: 0; right: 0; height: 80px; z-index: 2; pointer-events: none;
+  }
+  .spinner-mask-top {
+    top: 0;
+    background: linear-gradient(to bottom, var(--fl-navy), transparent);
+  }
+  .spinner-mask-bottom {
+    bottom: 0;
+    background: linear-gradient(to top, var(--fl-navy), transparent);
+  }
+  .spinner-highlight {
+    position: absolute; top: 50%; left: 0; right: 0; height: 60px; transform: translateY(-50%);
+    border-top: 2px solid var(--fl-green); border-bottom: 2px solid var(--fl-green);
+    background: rgba(91,207,165,0.06); z-index: 1; pointer-events: none;
+  }
+  .spinner-track {
+    position: absolute; left: 0; right: 0; transition: transform 0.1s linear;
+  }
+  .spinner-name {
+    height: 60px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 700; color: rgba(255,255,255,0.5);
+    letter-spacing: 0.05em; white-space: nowrap;
+  }
+  .spinner-name.active {
+    color: #fff; font-size: 1.7rem;
+  }
+
+  /* Draw button */
+  .draw-btn {
+    background: var(--fl-green); color: var(--fl-navy); border: none;
+    padding: 1rem 3rem; border-radius: 999px; font-size: 1rem;
+    font-weight: 700; cursor: pointer; letter-spacing: 0.15em; text-transform: uppercase;
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .draw-btn:hover:not(:disabled) {
+    background: var(--fl-green-light); transform: scale(1.05);
+    box-shadow: 0 8px 30px rgba(91,207,165,0.3);
+  }
+  .draw-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .reset-draw-btn {
+    background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4);
+    padding: 0.5rem 1.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+    cursor: pointer; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3rem;
+    transition: all 0.2s;
+  }
+  .reset-draw-btn:hover { border-color: var(--fl-coral); color: var(--fl-coral); }
+  .draw-btn.spinning { animation: pulse-glow 0.5s ease-in-out infinite alternate; }
+
+  @keyframes pulse-glow {
+    from { box-shadow: 0 0 20px rgba(91,207,165,0.3); }
+    to { box-shadow: 0 0 40px rgba(91,207,165,0.6); }
+  }
+
+  /* Winner reveal */
+  .winner-overlay {
+    position: fixed; inset: 0; z-index: 200; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(27,45,69,0.97); backdrop-filter: blur(10px);
+  }
+  .winner-overlay.visible { display: flex; }
+  .winner-card {
+    text-align: center; animation: winner-pop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    transform: scale(0);
+  }
+  @keyframes winner-pop {
+    to { transform: scale(1); }
+  }
+  .winner-card .trophy { font-size: 4rem; margin-bottom: 1rem; }
+  .winner-card .winner-label {
+    font-size: 0.8rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--fl-green); margin-bottom: 0.5rem; font-weight: 600;
+  }
+  .winner-card .winner-name {
+    font-size: 3.5rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem;
+    text-shadow: 0 0 40px rgba(91,207,165,0.4);
+  }
+  .winner-card .winner-prize {
+    font-size: 1.2rem; color: rgba(255,255,255,0.6); margin-bottom: 0.25rem;
+  }
+  .winner-card .winner-prize-value {
+    font-size: 1rem; color: var(--fl-green); margin-bottom: 2rem; font-weight: 600;
+  }
+  .winner-card .close-winner-btn {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; padding: 0.75rem 2.5rem; border-radius: 999px; cursor: pointer;
+    font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .winner-card .close-winner-btn:hover { background: var(--fl-green); color: var(--fl-navy); border-color: var(--fl-green); }
+
+  /* Confetti canvas */
+  #confetti-canvas {
+    position: fixed; inset: 0; z-index: 201; pointer-events: none;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex; gap: 2rem; margin-top: 2rem; padding: 1rem 2rem;
+    background: rgba(255,255,255,0.03); border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat { text-align: center; }
+  .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--fl-green); }
+  .stat-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+  /* History panel */
+  .history-section {
+    width: 100%; max-width: 600px; margin-top: 2rem;
+  }
+  .history-title {
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3); margin-bottom: 0.75rem; font-weight: 600;
+    text-align: center;
+  }
+  .history-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .history-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1.25rem; background: rgba(255,255,255,0.03);
+    border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);
+    animation: fade-in-up 0.4s ease-out;
+  }
+  .history-item .hi-name { font-weight: 700; font-size: 0.95rem; }
+  .history-item .hi-prize { font-size: 0.8rem; color: var(--fl-green); font-weight: 500; }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* No prize / no participants message */
+  .empty-msg {
+    color: rgba(255,255,255,0.3); font-size: 0.9rem; text-align: center; padding: 2rem;
+    line-height: 1.8;
+  }
+  .empty-msg strong { color: var(--fl-green); }
+
+  /* ---- Settings Panel (slide-over) ---- */
+  .settings-overlay {
+    position: fixed; inset: 0; z-index: 150; display: none;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  }
+  .settings-overlay.visible { display: block; }
+  .settings-panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 680px; max-width: 95vw;
+    background: #fff; color: #1a1a1a; z-index: 151;
+    transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto; box-shadow: -8px 0 40px rgba(0,0,0,0.3);
+  }
+  .settings-panel.open { transform: translateX(0); }
+  .settings-header {
+    position: sticky; top: 0; background: #fff; z-index: 5;
+    padding: 1.5rem 2rem; border-bottom: 1px solid var(--fl-border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .settings-header h2 {
+    font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .close-settings {
+    background: none; border: 1px solid var(--fl-border); width: 36px; height: 36px;
+    border-radius: 8px; cursor: pointer; font-size: 1.2rem; display: flex;
+    align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .close-settings:hover { background: var(--fl-grey); }
+  .settings-body { padding: 2rem; }
+  .settings-section { margin-bottom: 2.5rem; }
+  .settings-section h3 {
+    font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--fl-muted); margin-bottom: 1rem; font-weight: 600;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-badge {
+    background: var(--fl-green); color: #fff; font-size: 0.6rem; padding: 2px 8px;
+    border-radius: 999px; font-weight: 700;
+  }
+
+  /* Paste area */
+  .paste-area {
+    width: 100%; min-height: 100px; padding: 0.75rem; border: 2px dashed var(--fl-border);
+    border-radius: 10px; font-family: 'Inter', monospace; font-size: 0.8rem;
+    resize: vertical; outline: none; transition: border-color 0.2s; color: #1a1a1a;
+    background: var(--fl-grey);
+  }
+  .paste-area:focus { border-color: var(--fl-green); }
+  .paste-area::placeholder { color: var(--fl-muted); }
+  .paste-hint {
+    font-size: 0.7rem; color: var(--fl-muted); margin-top: 0.5rem; line-height: 1.5;
+  }
+  .import-btn {
+    margin-top: 0.75rem; background: var(--fl-green); color: #fff; border: none;
+    padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
+  }
+  .import-btn:hover { background: var(--fl-green-dark); }
+
+  /* Tables */
+  .data-table {
+    width: 100%; border-collapse: collapse; font-size: 0.8rem;
+  }
+  .data-table th {
+    text-align: left; padding: 0.6rem 0.75rem; font-size: 0.65rem;
+    letter-spacing: 0.15em; text-transform: uppercase; color: var(--fl-muted);
+    border-bottom: 2px solid var(--fl-border); font-weight: 600;
+  }
+  .data-table td {
+    padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--fl-border);
+    vertical-align: middle;
+  }
+  .data-table tr:hover td { background: rgba(91,207,165,0.05); }
+  .data-table .tickets-cell { font-weight: 700; color: var(--fl-green-dark); text-align: center; }
+  .remove-btn {
+    background: none; border: none; color: var(--fl-coral); cursor: pointer;
+    font-size: 1rem; padding: 2px 6px; border-radius: 4px; transition: all 0.15s;
+  }
+  .remove-btn:hover { background: rgba(255,107,74,0.1); }
+  .won-badge {
+    background: var(--fl-green); color: #fff; font-size: 0.6rem; padding: 2px 8px;
+    border-radius: 999px; font-weight: 700; letter-spacing: 0.05em;
+  }
+
+  /* Prize inputs */
+  .prize-row {
+    display: grid; grid-template-columns: 40px 1fr 80px 1fr 40px;
+    gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;
+  }
+  .prize-row .order-num {
+    width: 30px; height: 30px; background: var(--fl-navy); color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700;
+  }
+  .prize-input {
+    padding: 0.5rem 0.75rem; border: 1px solid var(--fl-border); border-radius: 8px;
+    font-size: 0.8rem; font-family: inherit; outline: none; transition: border-color 0.2s;
+    background: #fff;
+  }
+  .prize-input:focus { border-color: var(--fl-green); }
+  .prize-input.small { text-align: center; }
+  .add-prize-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem;
+    background: none; border: 1px dashed var(--fl-border); color: var(--fl-muted);
+    padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem; cursor: pointer;
+    transition: all 0.2s; font-weight: 500;
+  }
+  .add-prize-btn:hover { border-color: var(--fl-green); color: var(--fl-green-dark); }
+
+  /* Save/reset buttons */
+  .settings-actions {
+    display: flex; gap: 0.75rem; margin-top: 1.5rem;
+    padding-top: 1.5rem; border-top: 1px solid var(--fl-border);
+  }
+  .btn-primary {
+    flex: 1; background: var(--fl-green); color: #fff; border: none;
+    padding: 0.75rem; border-radius: 8px; font-weight: 700; cursor: pointer;
+    font-size: 0.85rem; letter-spacing: 0.05em; transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--fl-green-dark); }
+  .btn-secondary {
+    background: #fff; color: var(--fl-coral); border: 1px solid var(--fl-coral);
+    padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;
+    font-size: 0.8rem; transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: rgba(255,107,74,0.05); }
+
+  .table-wrapper { max-height: 300px; overflow-y: auto; border: 1px solid var(--fl-border); border-radius: 10px; }
+  .table-wrapper::-webkit-scrollbar { width: 4px; }
+  .table-wrapper::-webkit-scrollbar-thumb { background: var(--fl-green); border-radius: 2px; }
+
+  /* Responsive - Tablet */
+  @media (max-width: 768px) {
+    .header { padding: 0.75rem 1rem; }
+    .header-logos img { height: 32px; }
+    .header-title { display: none; }
+    .draw-area { padding: 1.5rem 1rem; min-height: auto; }
+    .draw-area .squall-logo { height: 70px; }
+    .draw-subtitle { font-size: 0.75rem; margin-bottom: 1.5rem; }
+    .prize-select { font-size: 1.4rem; padding: 0.4rem 2rem 0.4rem 0.75rem; }
+    .spinner-container { height: 200px; width: 100%; max-width: 100%; }
+    .spinner-name { font-size: 1.2rem; height: 50px; }
+    .spinner-name.active { font-size: 1.3rem; }
+    .spinner-highlight { height: 50px; }
+    .draw-btn { padding: 0.85rem 2rem; font-size: 0.9rem; }
+    .stats-bar { gap: 1rem; flex-wrap: wrap; justify-content: center; padding: 0.75rem 1rem; }
+    .stat-value { font-size: 1.2rem; }
+    .history-section { max-width: 100%; }
+    .history-item { padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.25rem; }
+    .winner-card .winner-name { font-size: 2.5rem; }
+    .winner-card .trophy { font-size: 3rem; }
+    .winner-card .winner-prize { font-size: 1rem; }
+    .settings-panel { width: 100%; max-width: 100%; }
+    .settings-header { padding: 1rem 1.25rem; }
+    .settings-body { padding: 1.25rem; }
+    .prize-row { grid-template-columns: 30px 1fr 70px 1fr 36px; gap: 0.4rem; }
+    .prize-input { padding: 0.45rem 0.5rem; font-size: 0.75rem; }
+  }
+
+  /* Responsive - Mobile */
+  @media (max-width: 480px) {
+    .header { padding: 0.6rem 0.75rem; gap: 0.5rem; }
+    .header-logos img { height: 26px; }
+    .settings-toggle { padding: 0.4rem 0.75rem; font-size: 0.7rem; }
+    .draw-area { padding: 1rem 0.75rem; }
+    .draw-area .squall-logo { height: 55px; margin-bottom: 0.5rem; }
+    .draw-subtitle { font-size: 0.65rem; letter-spacing: 0.15em; margin-bottom: 1rem; }
+    .current-prize-display { margin-bottom: 1rem; }
+    .current-prize-label { font-size: 0.6rem; }
+    .prize-select { font-size: 1.1rem; padding: 0.35rem 1.8rem 0.35rem 0.6rem; max-width: 90vw; }
+    .current-prize-value { font-size: 0.85rem; }
+    .current-prize-desc { font-size: 0.75rem; }
+    .spinner-container { height: 160px; border-radius: 12px; margin: 0.75rem 0 1.25rem; }
+    .spinner-mask-top, .spinner-mask-bottom { height: 50px; }
+    .spinner-name { font-size: 1rem; height: 45px; padding: 0 0.5rem; overflow: hidden; text-overflow: ellipsis; }
+    .spinner-name.active { font-size: 1.15rem; }
+    .spinner-highlight { height: 45px; }
+    .draw-btn { padding: 0.75rem 1.75rem; font-size: 0.85rem; letter-spacing: 0.1em; }
+    .stats-bar { gap: 0.5rem; padding: 0.6rem 0.75rem; margin-top: 1.25rem; }
+    .stat-value { font-size: 1rem; }
+    .stat-label { font-size: 0.55rem; letter-spacing: 0.1em; }
+    .history-item .hi-name { font-size: 0.85rem; }
+    .history-item .hi-prize { font-size: 0.7rem; }
+    .winner-overlay { padding: 1rem; }
+    .winner-card { padding: 0 1rem; }
+    .winner-card .trophy { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .winner-card .winner-label { font-size: 0.7rem; }
+    .winner-card .winner-name { font-size: 1.8rem; word-break: break-word; }
+    .winner-card .winner-prize { font-size: 0.9rem; }
+    .winner-card .winner-prize-value { font-size: 0.85rem; margin-bottom: 1.5rem; }
+    .winner-card .close-winner-btn { padding: 0.6rem 2rem; font-size: 0.8rem; }
+    .reset-draw-btn { margin-top: 2rem; font-size: 0.7rem; }
+    .settings-header { padding: 0.75rem 1rem; }
+    .settings-header h2 { font-size: 0.95rem; }
+    .settings-body { padding: 1rem; }
+    .settings-section { margin-bottom: 2rem; }
+    .paste-area { min-height: 80px; font-size: 0.75rem; }
+    .prize-row { grid-template-columns: 28px 1fr 60px 36px; }
+    .prize-row .desc-col { display: none; }
+    .data-table { font-size: 0.75rem; }
+    .data-table th { padding: 0.5rem; font-size: 0.6rem; }
+    .data-table td { padding: 0.4rem 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Snowflakes background -->
+<div class="snowflakes" id="snowflakes"></div>
+
+<!-- Confetti -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- App -->
+<div class="app-container">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-logos">
+      <img src="images/fourlines-logo-white.png" alt="FOURLINES">
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span class="header-title">2026 Prize Draw</span>
+      <button class="settings-toggle" id="openSettings">Settings</button>
+    </div>
+  </header>
+
+  <!-- Four Lines Divider -->
+  <div class="four-lines-divider">
+    <span></span><span></span><span></span><span></span>
+  </div>
+
+  <!-- Main Draw Area -->
+  <div class="draw-area" id="drawArea">
+    <img src="images/snowkite-squall-logo.png" alt="Snowkite Squall" class="squall-logo">
+    <div class="draw-subtitle">Snowkite Squall 2026 - Prize Raffle</div>
+
+    <!-- Current prize being drawn -->
+    <div class="current-prize-display" id="currentPrizeDisplay" style="display:none;">
+      <div class="current-prize-label">Now Drawing For</div>
+      <select class="prize-select" id="prizeSelect"></select>
+      <div class="current-prize-value" id="currentPrizeValue"></div>
+      <div class="current-prize-desc" id="currentPrizeDesc"></div>
+    </div>
+
+    <!-- Spinner -->
+    <div class="spinner-container" id="spinnerContainer">
+      <div class="spinner-mask-top"></div>
+      <div class="spinner-mask-bottom"></div>
+      <div class="spinner-highlight"></div>
+      <div class="spinner-track" id="spinnerTrack"></div>
+    </div>
+
+    <!-- Draw button -->
+    <button class="draw-btn" id="drawBtn" disabled>Draw Winner</button>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-value" id="statParticipants">0</div>
+        <div class="stat-label">Remaining</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statTickets">0</div>
+        <div class="stat-label">Total Tickets</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statPrizes">0</div>
+        <div class="stat-label">Prizes Left</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statDrawn">0</div>
+        <div class="stat-label">Drawn</div>
+      </div>
+    </div>
+
+    <!-- History of winners -->
+    <div class="history-section" id="historySection" style="display:none;">
+      <div class="history-title">Winners</div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-msg" id="emptyMsg">
+      Open <strong>Settings</strong> to add participants and prizes to get started.
+    </div>
+
+    <button class="reset-draw-btn" id="resetDrawBtn">Reset Draw</button>
+  </div>
+</div>
+
+<!-- Winner overlay -->
+<div class="winner-overlay" id="winnerOverlay">
+  <div class="winner-card">
+    <div class="trophy">&#127942;</div>
+    <div class="winner-label">Winner</div>
+    <div class="winner-name" id="winnerName"></div>
+    <div class="winner-prize" id="winnerPrize"></div>
+    <div class="winner-prize-value" id="winnerPrizeValue"></div>
+    <button class="close-winner-btn" id="closeWinner">Continue</button>
+  </div>
+</div>
+
+<!-- Settings slide-over -->
+<div class="settings-overlay" id="settingsOverlay"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-header">
+    <h2>Draw Settings</h2>
+    <button class="close-settings" id="closeSettings">&times;</button>
+  </div>
+  <div class="settings-body">
+
+    <!-- Participants section -->
+    <div class="settings-section">
+      <h3>
+        Participants
+        <span class="section-badge" id="participantCount">0</span>
+      </h3>
+      <textarea class="paste-area" id="pasteArea" placeholder="Paste from Excel here...&#10;&#10;Format: Name [TAB] Tickets&#10;e.g.&#10;John Smith&#9;5&#10;Jane Doe&#9;3&#10;Mike Wilson&#9;1"></textarea>
+      <div class="paste-hint">
+        Paste directly from Excel - each row should have a Name and Ticket count separated by a tab.
+        If no ticket count is provided, it defaults to 1.
+      </div>
+      <button class="import-btn" id="importBtn">Import Participants</button>
+
+      <div class="table-wrapper" style="margin-top:1rem;" id="participantsTableWrapper">
+        <table class="data-table" id="participantsTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th style="text-align:center;width:80px;">Tickets</th>
+              <th style="text-align:center;width:70px;">Status</th>
+              <th style="width:40px;"></th>
+            </tr>
+          </thead>
+          <tbody id="participantsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Prizes section -->
+    <div class="settings-section">
+      <h3>
+        Prizes
+        <span class="section-badge" id="prizeCount">0</span>
+      </h3>
+      <div id="prizesList"></div>
+      <button class="add-prize-btn" id="addPrizeBtn">+ Add Prize</button>
+    </div>
+
+    <!-- Actions -->
+    <div class="settings-actions">
+      <button class="btn-primary" id="saveSettings">Save &amp; Close</button>
+      <button class="btn-secondary" id="resetAll">Reset All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- State ----
+let participants = []; // { name, tickets, won: false, wonPrize: '' }
+let prizes = [];       // { name, value, description, drawn: false, winner: '' }
+let currentPrizeIndex = -1;
+let isSpinning = false;
+let history = [];      // { name, prize, value }
+
+// ---- DOM refs ----
+const $ = id => document.getElementById(id);
+const drawBtn = $('drawBtn');
+const spinnerTrack = $('spinnerTrack');
+const spinnerContainer = $('spinnerContainer');
+
+// ---- Snowflakes ----
+function createSnowflakes() {
+  const container = $('snowflakes');
+  const flakes = ['*'];
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('div');
+    el.className = 'snowflake';
+    el.textContent = flakes[0];
+    el.style.left = Math.random() * 100 + '%';
+    el.style.fontSize = (0.6 + Math.random() * 1.2) + 'rem';
+    el.style.opacity = 0.05 + Math.random() * 0.15;
+    el.style.animationDuration = (8 + Math.random() * 15) + 's';
+    el.style.animationDelay = Math.random() * 10 + 's';
+    container.appendChild(el);
+  }
+}
+createSnowflakes();
+
+// ---- Settings panel ----
+$('openSettings').onclick = () => {
+  $('settingsOverlay').classList.add('visible');
+  $('settingsPanel').classList.add('open');
+};
+function closeSettings() {
+  $('settingsOverlay').classList.remove('visible');
+  $('settingsPanel').classList.remove('open');
+}
+$('closeSettings').onclick = closeSettings;
+$('settingsOverlay').onclick = closeSettings;
+
+// ---- Import participants from paste ----
+$('importBtn').onclick = () => {
+  const raw = $('pasteArea').value.trim();
+  if (!raw) return;
+  const lines = raw.split('\n');
+  for (const line of lines) {
+    const parts = line.split('\t');
+    const name = (parts[0] || '').trim();
+    if (!name) continue;
+    const tickets = parseInt(parts[1]) || 1;
+    // Don't add duplicates
+    if (!participants.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+      participants.push({ name, tickets, won: false, wonPrize: '' });
+    }
+  }
+  $('pasteArea').value = '';
+  renderParticipantsTable();
+  updateUI();
+};
+
+// ---- Render participants table ----
+function renderParticipantsTable() {
+  const tbody = $('participantsBody');
+  tbody.innerHTML = '';
+  participants.forEach((p, i) => {
+    const tr = document.createElement('tr');
+    if (p.won) tr.style.opacity = '0.4';
+    tr.innerHTML = `
+      <td>${escHtml(p.name)}</td>
+      <td class="tickets-cell">${p.tickets}</td>
+      <td style="text-align:center;">${p.won ? '<span class="won-badge">WON</span>' : '<span style="color:#999;font-size:0.75rem;">Active</span>'}</td>
+      <td><button class="remove-btn" data-idx="${i}">&times;</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  $('participantCount').textContent = participants.filter(p => !p.won).length;
+
+  // Bind remove buttons
+  tbody.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.onclick = () => {
+      participants.splice(parseInt(btn.dataset.idx), 1);
+      renderParticipantsTable();
+      updateUI();
+    };
+  });
+}
+
+// ---- Prizes ----
+function renderPrizesList() {
+  const container = $('prizesList');
+  container.innerHTML = '';
+  prizes.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'prize-row';
+    div.innerHTML = `
+      <div class="order-num">${i + 1}</div>
+      <input class="prize-input" placeholder="Prize name" value="${escAttr(p.name)}" data-idx="${i}" data-field="name">
+      <input class="prize-input small" placeholder="$0" value="${escAttr(p.value)}" data-idx="${i}" data-field="value">
+      <input class="prize-input desc-col" placeholder="Description" value="${escAttr(p.description)}" data-idx="${i}" data-field="description">
+      <button class="remove-btn" data-idx="${i}">&times;</button>
+    `;
+    container.appendChild(div);
+  });
+  $('prizeCount').textContent = prizes.filter(p => !p.drawn).length;
+
+  // Bind inputs
+  container.querySelectorAll('.prize-input').forEach(inp => {
+    inp.oninput = () => {
+      prizes[parseInt(inp.dataset.idx)][inp.dataset.field] = inp.value;
+    };
+  });
+  container.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.onclick = () => {
+      prizes.splice(parseInt(btn.dataset.idx), 1);
+      renderPrizesList();
+      updateUI();
+    };
+  });
+}
+
+$('addPrizeBtn').onclick = () => {
+  prizes.push({ name: '', value: '', description: '', drawn: false, winner: '' });
+  renderPrizesList();
+};
+
+// ---- Save & Reset ----
+$('saveSettings').onclick = () => {
+  saveState();
+  closeSettings();
+  updateUI();
+};
+
+$('resetAll').onclick = () => {
+  if (!confirm('Reset all participants, prizes, and history?')) return;
+  participants = [];
+  prizes = [];
+  history = [];
+  currentPrizeIndex = -1;
+  renderParticipantsTable();
+  renderPrizesList();
+  updateUI();
+  saveState();
+};
+
+// ---- Persistence ----
+function saveState() {
+  localStorage.setItem('squallPicker', JSON.stringify({ participants, prizes, history }));
+}
+function loadState() {
+  try {
+    const data = JSON.parse(localStorage.getItem('squallPicker'));
+    if (data) {
+      participants = data.participants || [];
+      prizes = data.prizes || [];
+      history = data.history || [];
+    }
+  } catch(e) {}
+}
+
+// ---- Update main UI ----
+function updateUI() {
+  const active = participants.filter(p => !p.won);
+  const remainingPrizes = prizes.filter(p => !p.drawn && p.name.trim());
+
+  $('statParticipants').textContent = active.length;
+  $('statTickets').textContent = active.reduce((s, p) => s + p.tickets, 0);
+  $('statPrizes').textContent = remainingPrizes.length;
+  $('statDrawn').textContent = history.length;
+
+  const canDraw = active.length > 0 && remainingPrizes.length > 0 && !isSpinning;
+  drawBtn.disabled = !canDraw;
+
+  // Show prize selector
+  const prizeSelect = $('prizeSelect');
+  if (remainingPrizes.length > 0 && active.length > 0) {
+    $('currentPrizeDisplay').style.display = '';
+    $('emptyMsg').style.display = 'none';
+    // Rebuild dropdown options
+    const prevSelected = prizeSelect.value;
+    prizeSelect.innerHTML = '';
+    remainingPrizes.forEach((p, i) => {
+      const opt = document.createElement('option');
+      opt.value = String(prizes.indexOf(p));
+      opt.textContent = p.name;
+      prizeSelect.appendChild(opt);
+    });
+    // Restore previous selection if still valid
+    if (prevSelected && prizeSelect.querySelector(`option[value="${prevSelected}"]`)) {
+      prizeSelect.value = prevSelected;
+    }
+    updatePrizeDetails();
+  } else if (history.length > 0) {
+    $('currentPrizeDisplay').style.display = 'none';
+    $('emptyMsg').style.display = 'none';
+  } else {
+    $('currentPrizeDisplay').style.display = 'none';
+    $('emptyMsg').style.display = '';
+  }
+
+  // Render spinner names
+  buildSpinnerNames(active);
+
+  // History
+  if (history.length > 0) {
+    $('historySection').style.display = '';
+    $('historyList').innerHTML = history.map(h =>
+      `<div class="history-item">
+        <span class="hi-name">${escHtml(h.name)}</span>
+        <span class="hi-prize">${escHtml(h.prize)}${h.value ? ' (' + escHtml(h.value) + ')' : ''}</span>
+      </div>`
+    ).reverse().join('');
+  } else {
+    $('historySection').style.display = 'none';
+  }
+
+  saveState();
+}
+
+// ---- Reset draw ----
+$('resetDrawBtn').onclick = () => {
+  if (!confirm('Reset all draws? Participants and prizes will be kept, but all winners will be cleared.')) return;
+  participants.forEach(p => { p.won = false; p.wonPrize = ''; });
+  prizes.forEach(p => { p.drawn = false; p.winner = ''; });
+  history = [];
+  renderParticipantsTable();
+  renderPrizesList();
+  updateUI();
+  saveState();
+};
+
+// ---- Prize select change ----
+function updatePrizeDetails() {
+  const sel = $('prizeSelect');
+  const idx = parseInt(sel.value);
+  const p = prizes[idx];
+  if (p) {
+    $('currentPrizeValue').textContent = p.value || '';
+    $('currentPrizeDesc').textContent = p.description || '';
+  }
+}
+$('prizeSelect').addEventListener('change', updatePrizeDetails);
+
+// ---- Spinner ----
+let spinnerNames = [];
+
+function buildSpinnerNames(active) {
+  spinnerNames = active.map(p => p.name);
+  // Pad to at least 20 for visual effect
+  while (spinnerNames.length > 0 && spinnerNames.length < 20) {
+    spinnerNames = spinnerNames.concat(active.map(p => p.name));
+  }
+  // Shuffle
+  for (let i = spinnerNames.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [spinnerNames[i], spinnerNames[j]] = [spinnerNames[j], spinnerNames[i]];
+  }
+  renderSpinnerTrack();
+}
+
+function renderSpinnerTrack() {
+  spinnerTrack.innerHTML = '';
+  spinnerNames.forEach(name => {
+    const div = document.createElement('div');
+    div.className = 'spinner-name';
+    div.textContent = name;
+    spinnerTrack.appendChild(div);
+  });
+  // Center the track
+  spinnerTrack.style.transform = `translateY(${spinnerContainer.clientHeight / 2 - 30}px)`;
+}
+
+// ---- Weighted random pick ----
+function weightedPick(active) {
+  const totalTickets = active.reduce((s, p) => s + p.tickets, 0);
+  let rand = Math.random() * totalTickets;
+  for (const p of active) {
+    rand -= p.tickets;
+    if (rand <= 0) return p;
+  }
+  return active[active.length - 1];
+}
+
+// ---- Draw animation ----
+drawBtn.onclick = () => {
+  if (isSpinning) return;
+  const active = participants.filter(p => !p.won);
+  const selectedPrizeIdx = parseInt($('prizeSelect').value);
+  const prize = prizes[selectedPrizeIdx];
+  if (active.length === 0 || !prize || prize.drawn) return;
+
+  isSpinning = true;
+  drawBtn.disabled = true;
+  drawBtn.classList.add('spinning');
+  drawBtn.textContent = 'Drawing...';
+
+  const winner = weightedPick(active);
+
+  // Build a long spin track with winner at end
+  const trackNames = [];
+  const totalSpinItems = 60 + Math.floor(Math.random() * 20);
+  for (let i = 0; i < totalSpinItems - 1; i++) {
+    trackNames.push(active[Math.floor(Math.random() * active.length)].name);
+  }
+  trackNames.push(winner.name);
+
+  spinnerTrack.innerHTML = '';
+  trackNames.forEach((name, idx) => {
+    const div = document.createElement('div');
+    div.className = 'spinner-name';
+    if (idx === trackNames.length - 1) div.classList.add('active');
+    div.textContent = name;
+    spinnerTrack.appendChild(div);
+  });
+
+  const firstItem = spinnerTrack.querySelector('.spinner-name');
+  const itemHeight = firstItem ? firstItem.offsetHeight : 60;
+  const containerMid = spinnerContainer.clientHeight / 2 - itemHeight / 2;
+  spinnerTrack.style.transition = 'none';
+  spinnerTrack.style.transform = `translateY(${containerMid}px)`;
+
+  // Animate with easing
+  const targetOffset = -(trackNames.length - 1) * itemHeight + containerMid;
+  const duration = 4000 + Math.random() * 1000;
+  const startTime = performance.now();
+  const startY = containerMid;
+
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  // Play a ticking sound effect using AudioContext
+  let lastTickIndex = -1;
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playTick(freq, vol) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.05);
+  }
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOutCubic(progress);
+    const currentY = startY + (targetOffset - startY) * eased;
+    spinnerTrack.style.transform = `translateY(${currentY}px)`;
+
+    // Tick sound
+    const currentIndex = Math.floor(Math.abs(currentY - containerMid) / itemHeight);
+    if (currentIndex !== lastTickIndex) {
+      lastTickIndex = currentIndex;
+      const slowdown = 1 - progress;
+      playTick(800 + slowdown * 400, 0.03 + slowdown * 0.05);
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      // Done - reveal winner
+      setTimeout(() => {
+        // Mark winner
+        const pIdx = participants.findIndex(p => p.name === winner.name && !p.won);
+        if (pIdx !== -1) {
+          participants[pIdx].won = true;
+          participants[pIdx].wonPrize = prize.name;
+        }
+        prizes[selectedPrizeIdx].drawn = true;
+        prizes[selectedPrizeIdx].winner = winner.name;
+        history.push({ name: winner.name, prize: prize.name, value: prize.value });
+
+        // Show winner overlay
+        $('winnerName').textContent = winner.name;
+        $('winnerPrize').textContent = prize.name;
+        $('winnerPrizeValue').textContent = prize.value || '';
+        $('winnerOverlay').classList.add('visible');
+
+        // Confetti
+        launchConfetti();
+
+        // Play winner sound
+        playWinnerSound();
+
+        isSpinning = false;
+        drawBtn.classList.remove('spinning');
+        drawBtn.textContent = 'Draw Winner';
+        renderParticipantsTable();
+        updateUI();
+      }, 600);
+    }
+  }
+
+  requestAnimationFrame(animate);
+};
+
+// ---- Winner sound ----
+function playWinnerSound() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const notes = [523, 659, 784, 1047];
+  notes.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'triangle';
+    const t = ctx.currentTime + i * 0.15;
+    gain.gain.setValueAtTime(0.1, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+    osc.start(t);
+    osc.stop(t + 0.4);
+  });
+}
+
+// ---- Close winner overlay ----
+$('closeWinner').onclick = () => {
+  $('winnerOverlay').classList.remove('visible');
+  stopConfetti();
+};
+
+// ---- Confetti ----
+const confettiCanvas = $('confetti-canvas');
+const confettiCtx = confettiCanvas.getContext('2d');
+let confettiPieces = [];
+let confettiRunning = false;
+
+function resizeConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeConfetti);
+resizeConfetti();
+
+function launchConfetti() {
+  confettiPieces = [];
+  const colors = ['#5BCFA5', '#A8EDCE', '#FF6B4A', '#FFD700', '#fff', '#2E9B74', '#1B2D45'];
+  for (let i = 0; i < 150; i++) {
+    confettiPieces.push({
+      x: window.innerWidth / 2 + (Math.random() - 0.5) * 200,
+      y: window.innerHeight / 2,
+      vx: (Math.random() - 0.5) * 20,
+      vy: -Math.random() * 18 - 5,
+      w: 6 + Math.random() * 8,
+      h: 4 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 15,
+      gravity: 0.25 + Math.random() * 0.15,
+    });
+  }
+  confettiRunning = true;
+  animateConfetti();
+}
+
+function animateConfetti() {
+  if (!confettiRunning) { confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); return; }
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  let alive = false;
+  confettiPieces.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += p.gravity;
+    p.vx *= 0.99;
+    p.rotation += p.rotSpeed;
+    if (p.y < confettiCanvas.height + 50) alive = true;
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rotation * Math.PI / 180);
+    confettiCtx.fillStyle = p.color;
+    confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    confettiCtx.restore();
+  });
+  if (alive) requestAnimationFrame(animateConfetti);
+  else confettiRunning = false;
+}
+
+function stopConfetti() {
+  confettiRunning = false;
+}
+
+// ---- Helpers ----
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escAttr(s) { return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+// ---- Init ----
+loadState();
+renderParticipantsTable();
+renderPrizesList();
+updateUI();
+</script>
+</body>
+</html>
