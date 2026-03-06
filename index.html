@@ -133,6 +133,23 @@
     color: rgba(255,255,255,0.6); margin-bottom: 2rem; font-weight: 500;
   }
 
+  /* Up Next */
+  .up-next {
+    text-align: center; margin-top: 1.5rem; padding: 0.6rem 1.2rem;
+    background: rgba(255,255,255,0.05); border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .up-next-label {
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); font-weight: 600; margin-right: 0.5rem;
+  }
+  .up-next-name {
+    font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.7);
+  }
+  .up-next-value {
+    font-size: 0.75rem; color: var(--fl-green-light); font-weight: 600; margin-left: 0.4rem;
+  }
+
   /* Prize display */
   .current-prize-display {
     text-align: center; margin-bottom: 2rem;
@@ -622,6 +639,13 @@
 
     <!-- Draw button -->
     <button class="draw-btn" id="drawBtn" disabled>Draw Winner</button>
+
+    <!-- Up Next -->
+    <div class="up-next" id="upNext" style="display:none;">
+      <span class="up-next-label">Up Next:</span>
+      <span class="up-next-name" id="upNextName"></span>
+      <span class="up-next-value" id="upNextValue"></span>
+    </div>
 
     <!-- Stats -->
     <div class="stats-bar">
@@ -1166,6 +1190,18 @@ function updateUI() {
   } else {
     $('currentPrizeDisplay').style.display = 'none';
     $('emptyMsg').style.display = '';
+  }
+
+  // Up Next prize
+  const selectedIdx = parseInt(prizeSelect.value);
+  const currentPosInRemaining = remainingPrizes.findIndex(p => prizes.indexOf(p) === selectedIdx);
+  const nextPrize = currentPosInRemaining >= 0 ? remainingPrizes[currentPosInRemaining + 1] : null;
+  if (nextPrize) {
+    $('upNext').style.display = '';
+    $('upNextName').textContent = nextPrize.name;
+    $('upNextValue').textContent = nextPrize.value || '';
+  } else {
+    $('upNext').style.display = 'none';
   }
 
   // Render spinner names
