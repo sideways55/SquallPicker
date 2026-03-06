@@ -111,18 +111,21 @@
     min-height: calc(100vh - 80px); padding: 2rem; position: relative;
   }
   .draw-area .squall-logo-wrap {
-    background: rgba(255,255,255,0.12); padding: 0.4rem 0.75rem 0;
+    background: rgba(255,255,255,0.12); padding: 0.4rem 0.75rem 0.4rem;
     border-radius: 10px; margin-bottom: 1rem;
-    line-height: 0; overflow: hidden; text-align: right;
+    line-height: 0; position: relative;
+  }
+  .draw-area .squall-logo-clip {
+    overflow: hidden;
   }
   .draw-area .squall-logo {
     height: 150px; display: block;
-    margin-bottom: -45px; /* clip OTTAWA 2024 from bottom */
+    margin-bottom: -38px; /* clip OTTAWA 2024 from bottom */
   }
   .draw-area .squall-year {
     font-size: 0.7rem; letter-spacing: 0.45em; font-weight: 600;
-    color: #222; line-height: 1; padding: 2px 4px 6px 0;
-    font-family: Inter, system-ui, sans-serif;
+    color: #222; line-height: 1; padding: 2px 4px 0 0;
+    font-family: Inter, system-ui, sans-serif; text-align: right;
   }
   .draw-subtitle {
     font-size: 0.85rem; letter-spacing: 0.25em; text-transform: uppercase;
@@ -493,7 +496,7 @@
     .header-logos img { height: 32px; }
     .header-title { display: none; }
     .draw-area { padding: 1.5rem 1rem; min-height: auto; }
-    .draw-area .squall-logo { height: 120px; margin-bottom: -36px; }
+    .draw-area .squall-logo { height: 120px; margin-bottom: -30px; }
     .draw-area .squall-year { font-size: 0.55rem; }
     .draw-subtitle { font-size: 0.75rem; margin-bottom: 1.5rem; }
     .prize-select { font-size: 1.4rem; padding: 0.4rem 2rem 0.4rem 0.75rem; }
@@ -522,7 +525,7 @@
     .header-logos img { height: 26px; }
     .settings-toggle { padding: 0.4rem 0.75rem; font-size: 0.7rem; }
     .draw-area { padding: 1rem 0.75rem; }
-    .draw-area .squall-logo { height: 100px; margin-bottom: -30px; }
+    .draw-area .squall-logo { height: 100px; margin-bottom: -25px; }
     .draw-area .squall-year { font-size: 0.45rem; }
     .draw-subtitle { font-size: 0.65rem; letter-spacing: 0.15em; margin-bottom: 1rem; }
     .current-prize-display { margin-bottom: 1rem; }
@@ -597,7 +600,7 @@
 
   <!-- Main Draw Area -->
   <div class="draw-area" id="drawArea">
-    <div class="squall-logo-wrap"><img src="images/snowkite-squall-logo.png" alt="Snowkite Squall" class="squall-logo"><div class="squall-year">O T T A W A &nbsp; 2 0 2 6</div></div>
+    <div class="squall-logo-wrap"><div class="squall-logo-clip"><img src="images/snowkite-squall-logo.png" alt="Snowkite Squall" class="squall-logo"></div><div class="squall-year">O T T A W A &nbsp; 2 0 2 6</div></div>
     <div class="draw-subtitle">Snowkite Squall 2026 - Prize Raffle</div>
 
     <!-- Current prize being drawn -->
