@@ -96,10 +96,10 @@
     font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;
   }
   .current-prize-value {
-    font-size: 1rem; color: rgba(255,255,255,0.5); font-weight: 400;
+    font-size: 1.4rem; color: var(--fl-green); font-weight: 700; margin-top: 0.25rem;
   }
   .current-prize-desc {
-    font-size: 0.85rem; color: rgba(255,255,255,0.35); margin-top: 0.25rem;
+    font-size: 1.1rem; color: rgba(255,255,255,0.55); margin-top: 0.35rem; font-weight: 400;
   }
   .prize-select {
     background: rgba(255,255,255,0.08); border: 1px solid rgba(91,207,165,0.3);
@@ -217,9 +217,40 @@
     position: fixed; inset: 0; z-index: 201; pointer-events: none;
   }
 
+  /* Prize value tally */
+  .value-tally {
+    margin-top: 2rem; text-align: center; width: 100%; max-width: 500px;
+  }
+  .tally-amounts {
+    display: flex; justify-content: center; gap: 2.5rem; margin-bottom: 0.75rem;
+  }
+  .tally-item { text-align: center; }
+  .tally-label {
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35); font-weight: 600; margin-bottom: 0.25rem;
+  }
+  .tally-value {
+    font-size: 2rem; font-weight: 900; transition: all 0.4s ease;
+  }
+  .tally-value.given { color: var(--fl-green); }
+  .tally-value.remaining { color: #fff; }
+  .tally-bar-track {
+    width: 100%; height: 8px; background: rgba(255,255,255,0.08);
+    border-radius: 99px; overflow: hidden; position: relative;
+  }
+  .tally-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--fl-green), var(--fl-green-light));
+    border-radius: 99px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 12px rgba(91,207,165,0.4);
+  }
+  .tally-percent {
+    font-size: 0.65rem; color: rgba(255,255,255,0.3); margin-top: 0.4rem;
+    letter-spacing: 0.1em; font-weight: 500;
+  }
+
   /* Stats bar */
   .stats-bar {
-    display: flex; gap: 2rem; margin-top: 2rem; padding: 1rem 2rem;
+    display: flex; gap: 2rem; margin-top: 1.25rem; padding: 1rem 2rem;
     background: rgba(255,255,255,0.03); border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.06);
   }
@@ -410,7 +441,12 @@
     .draw-subtitle { font-size: 0.65rem; letter-spacing: 0.15em; margin-bottom: 1rem; }
     .current-prize-display { margin-bottom: 1rem; }
     .current-prize-label { font-size: 0.6rem; }
+    .current-prize-value { font-size: 1.1rem; }
+    .current-prize-desc { font-size: 0.9rem; }
     .prize-select { font-size: 1.1rem; padding: 0.35rem 1.8rem 0.35rem 0.6rem; max-width: 90vw; }
+    .tally-amounts { gap: 1.5rem; }
+    .tally-value { font-size: 1.4rem; }
+    .value-tally { max-width: 100%; }
     .current-prize-value { font-size: 0.85rem; }
     .current-prize-desc { font-size: 0.75rem; }
     .spinner-container { height: 160px; border-radius: 12px; margin: 0.75rem 0 1.25rem; }
@@ -513,6 +549,24 @@
         <div class="stat-value" id="statDrawn">0</div>
         <div class="stat-label">Drawn</div>
       </div>
+    </div>
+
+    <!-- Prize value tally -->
+    <div class="value-tally" id="valueTally" style="display:none;">
+      <div class="tally-amounts">
+        <div class="tally-item">
+          <div class="tally-label">Given Away</div>
+          <div class="tally-value given" id="tallyGiven">$0</div>
+        </div>
+        <div class="tally-item">
+          <div class="tally-label">Still Up For Grabs</div>
+          <div class="tally-value remaining" id="tallyRemaining">$0</div>
+        </div>
+      </div>
+      <div class="tally-bar-track">
+        <div class="tally-bar-fill" id="tallyBar" style="width:0%"></div>
+      </div>
+      <div class="tally-percent" id="tallyPercent"></div>
     </div>
 
     <!-- History of winners -->
@@ -883,6 +937,24 @@ function updateUI() {
 
   // Render spinner names
   buildSpinnerNames(active);
+
+  // Prize value tally
+  const parseVal = (v) => { const n = parseFloat(String(v).replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
+  const totalValue = prizes.reduce((s, p) => s + parseVal(p.value), 0);
+  const givenValue = prizes.filter(p => p.drawn).reduce((s, p) => s + parseVal(p.value), 0);
+  const remainingValue = totalValue - givenValue;
+
+  if (totalValue > 0) {
+    $('valueTally').style.display = '';
+    const fmt = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    $('tallyGiven').textContent = fmt(givenValue);
+    $('tallyRemaining').textContent = fmt(remainingValue);
+    const pct = totalValue > 0 ? Math.round((givenValue / totalValue) * 100) : 0;
+    $('tallyBar').style.width = pct + '%';
+    $('tallyPercent').textContent = pct + '% of ' + fmt(totalValue) + ' total prize value given away';
+  } else {
+    $('valueTally').style.display = 'none';
+  }
 
   // History
   if (history.length > 0) {
