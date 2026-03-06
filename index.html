@@ -972,54 +972,24 @@ function extractSheetId(url) {
   return m ? m[1] : null;
 }
 
-function csvToRows(csv) {
-  // Normalize line endings
-  csv = csv.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  // Split into rows respecting quoted newlines
-  const rows = [];
-  let current = '';
-  let inQuotes = false;
-  for (let i = 0; i < csv.length; i++) {
-    const ch = csv[i];
-    if (ch === '"') inQuotes = !inQuotes;
-    if (ch === '\n' && !inQuotes) {
-      rows.push(current);
-      current = '';
-    } else {
-      current += ch;
-    }
-  }
-  if (current.trim()) rows.push(current);
-  // Parse each row into columns, handling quoted fields with commas
-  return rows.map(r => {
-    const cols = [];
-    let col = '';
-    let q = false;
-    for (let i = 0; i < r.length; i++) {
-      const ch = r[i];
-      if (ch === '"') {
-        if (q && r[i+1] === '"') { col += '"'; i++; }
-        else { q = !q; continue; }
-      } else if (ch === ',' && !q) {
-        cols.push(col.trim());
-        col = '';
-        continue;
-      }
-      col += ch;
-    }
-    cols.push(col.trim());
-    return cols;
-  });
-}
-
 async function fetchSheet(url, tabName) {
   const sheetId = extractSheetId(url);
   if (!sheetId) throw new Error('Invalid Google Sheet URL');
-  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
-  const resp = await fetch(csvUrl);
+  const jsonUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tabName)}`;
+  const resp = await fetch(jsonUrl);
   if (!resp.ok) throw new Error(`Could not fetch "${tabName}" tab (${resp.status})`);
   const text = await resp.text();
-  return csvToRows(text);
+  // Response is JSONP-like: google.visualization.Query.setResponse({...})
+  const jsonStr = text.replace(/^[^(]*\(/, '').replace(/\);?\s*$/, '');
+  const data = JSON.parse(jsonStr);
+  const table = data.table;
+  // Convert to array of arrays (skip header row, use raw values)
+  return table.rows.map(row =>
+    row.c.map(cell => {
+      if (!cell || cell.v === null || cell.v === undefined) return '';
+      return String(cell.v);
+    })
+  );
 }
 
 async function fetchFromSheet(url) {
@@ -1038,7 +1008,7 @@ async function fetchFromSheet(url) {
     for (let i = 0; i < pRows.length; i++) {
       const row = pRows[i];
       const name = (row[0] || '').trim();
-      if (!name || name.toLowerCase() === 'name') continue; // skip header
+      if (!name) continue;
       const tickets = parseInt(row[1]) || 1;
       const lower = name.toLowerCase();
       if (wonNames.has(lower)) {
@@ -1057,9 +1027,14 @@ async function fetchFromSheet(url) {
     for (let i = 0; i < prRows.length; i++) {
       const row = prRows[i];
       const name = (row[0] || '').trim();
-      if (!name || name.toLowerCase() === 'name' || name.toLowerCase() === 'prize name' || name.toLowerCase() === 'prize') continue;
+      if (!name) continue;
       const description = (row[1] || '').trim();
-      const value = (row[2] || '').trim();
+      let value = (row[2] || '').trim();
+      // Format numeric values as currency
+      const numVal = parseFloat(value);
+      if (!isNaN(numVal) && numVal > 0) {
+        value = '$' + numVal.toLocaleString('en-US', { minimumFractionDigits: numVal % 1 ? 2 : 0 });
+      }
       const lower = name.toLowerCase();
       if (drawnMap[lower]) {
         prizes.push(drawnMap[lower]);
