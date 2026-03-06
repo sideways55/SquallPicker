@@ -910,7 +910,7 @@ $('prizesTable').addEventListener('paste', (e) => {
     if (!name) continue;
     const value = (parts[1] || '').trim();
     const description = (parts[2] || '').trim();
-    prizes.push({ name, value, description, drawn: false, winner: '' });
+    prizes.push({ name, value, description, drawn: false, winner: '', ignore: [] });
   }
   renderPrizesList();
   updateUI();
@@ -953,7 +953,7 @@ function renderPrizesList() {
 }
 
 $('addPrizeBtn').onclick = () => {
-  prizes.push({ name: '', value: '', description: '', drawn: false, winner: '' });
+  prizes.push({ name: '', value: '', description: '', drawn: false, winner: '', ignore: [] });
   renderPrizesList();
   const inputs = $('prizesBody').querySelectorAll('input[data-field="name"]');
   if (inputs.length) inputs[inputs.length - 1].focus();
@@ -1089,11 +1089,13 @@ async function fetchFromSheet(url) {
       if (!isNaN(numVal) && numVal > 0) {
         value = '$' + numVal.toLocaleString('en-US', { minimumFractionDigits: numVal % 1 ? 2 : 0 });
       }
+      const ignore = (row[3] || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
       const lower = name.toLowerCase();
       if (drawnMap[lower]) {
+        drawnMap[lower].ignore = ignore;
         prizes.push(drawnMap[lower]);
       } else {
-        prizes.push({ name, value, description, drawn: false, winner: '' });
+        prizes.push({ name, value, description, drawn: false, winner: '', ignore });
       }
     }
 
@@ -1278,10 +1280,12 @@ function weightedPick(active) {
 // ---- Draw animation ----
 drawBtn.onclick = () => {
   if (isSpinning) return;
-  const active = participants.filter(p => !p.won);
   const selectedPrizeIdx = parseInt($('prizeSelect').value);
   const prize = prizes[selectedPrizeIdx];
-  if (active.length === 0 || !prize || prize.drawn) return;
+  if (!prize || prize.drawn) return;
+  const ignoreList = (prize.ignore || []);
+  const active = participants.filter(p => !p.won && !ignoreList.includes(p.name.toLowerCase()));
+  if (active.length === 0) return;
 
   isSpinning = true;
   drawBtn.disabled = true;
