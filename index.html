@@ -81,12 +81,25 @@
 
   /* ---- Header ---- */
   .floating-logo {
-    position: fixed; top: 1rem; left: 1.5rem; z-index: 100;
+    position: fixed; top: 1rem; left: 1.5rem; z-index: 210;
   }
   .floating-logo img { height: 36px; width: auto; opacity: 0.7; }
   .floating-controls {
-    position: fixed; top: 1rem; right: 1.5rem; z-index: 100;
+    position: fixed; top: 1rem; right: 1.5rem; z-index: 210;
     display: flex; align-items: center; gap: 0.5rem;
+  }
+  .fixed-squall-logo {
+    position: fixed; top: 0.75rem; left: 50%; transform: translateX(-50%);
+    z-index: 210; line-height: 0;
+    background: rgba(255,255,255,0.12); padding: 0.4rem 0.75rem 0.4rem;
+    border-radius: 10px;
+  }
+  .fixed-squall-logo .squall-logo-clip { overflow: hidden; }
+  .fixed-squall-logo .squall-logo { height: 150px; display: block; margin-bottom: -50px; }
+  .fixed-squall-logo .squall-year {
+    font-size: 0.7rem; letter-spacing: 0.45em; font-weight: 600;
+    color: #222; line-height: 1; padding: 6px 4px 0 0;
+    font-family: Inter, system-ui, sans-serif; text-align: right;
   }
   .four-lines-divider {
     display: flex; gap: 6px; padding: 6px 0;
@@ -106,23 +119,6 @@
   .draw-area {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     min-height: calc(100vh - 80px); padding: 2rem; position: relative;
-  }
-  .draw-area .squall-logo-wrap {
-    background: rgba(255,255,255,0.12); padding: 0.4rem 0.75rem 0.4rem;
-    border-radius: 10px; margin-bottom: 1rem;
-    line-height: 0; position: relative;
-  }
-  .draw-area .squall-logo-clip {
-    overflow: hidden;
-  }
-  .draw-area .squall-logo {
-    height: 150px; display: block;
-    margin-bottom: -50px; /* clip OTTAWA 2024 from bottom */
-  }
-  .draw-area .squall-year {
-    font-size: 0.7rem; letter-spacing: 0.45em; font-weight: 600;
-    color: #222; line-height: 1; padding: 6px 4px 0 0;
-    font-family: Inter, system-ui, sans-serif; text-align: right;
   }
   .draw-subtitle {
     font-size: 0.85rem; letter-spacing: 0.25em; text-transform: uppercase;
@@ -185,16 +181,16 @@
     filter: drop-shadow(0 0 30px rgba(91,207,165,0.15));
   }
   .wheel-pointer {
-    position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
+    position: absolute; right: -48px; top: 50%; transform: translateY(-50%);
     width: 0; height: 0; z-index: 5;
     border-top: 16px solid transparent; border-bottom: 16px solid transparent;
     border-right: 40px solid var(--fl-green);
     filter: drop-shadow(-2px 0 6px rgba(0,0,0,0.5));
   }
-  .wheel-tap-hint {
-    position: absolute; bottom: -2rem; left: 50%; transform: translateX(-50%);
-    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.2em;
-    color: var(--fl-green); text-transform: uppercase;
+  .wheel-stop-hint {
+    position: absolute; bottom: -2.5rem; left: 50%; transform: translateX(-50%);
+    font-size: 0.85rem; font-weight: 700; letter-spacing: 0.2em;
+    color: var(--fl-green); text-transform: uppercase; white-space: nowrap;
     animation: hint-pulse 1.2s ease-in-out infinite alternate;
   }
   @keyframes hint-pulse {
@@ -228,22 +224,6 @@
     to { box-shadow: 0 0 40px rgba(91,207,165,0.6); }
   }
 
-  /* Overlay logos (shared by draw + winner overlays) — match main page */
-  .overlay-fl-logo {
-    position: absolute; top: 1rem; left: 1.5rem;
-  }
-  .overlay-fl-logo img { height: 36px; width: auto; opacity: 0.7; }
-  .overlay-squall-logo {
-    background: rgba(255,255,255,0.12); padding: 0.4rem 0.75rem 0.4rem;
-    border-radius: 10px; margin-bottom: 0.75rem; line-height: 0; position: relative;
-  }
-  .overlay-squall-logo .squall-logo-clip { overflow: hidden; }
-  .overlay-squall-logo .squall-logo { height: 150px; display: block; margin-bottom: -50px; }
-  .overlay-squall-logo .squall-year {
-    font-size: 0.7rem; letter-spacing: 0.45em; font-weight: 600;
-    color: #222; line-height: 1; padding: 6px 4px 0 0;
-    font-family: Inter, system-ui, sans-serif; text-align: right;
-  }
 
   /* Draw overlay (fullscreen spinner page) */
   .draw-overlay {
@@ -538,18 +518,15 @@
   /* Responsive - Large Desktop */
   @media (min-width: 1200px) {
     .draw-area { padding: 2rem 4rem 2rem; min-height: auto; }
-    .draw-area .squall-logo-wrap { margin-bottom: 1rem; padding: 0.3rem 0.6rem 0.3rem; }
-    .draw-area .squall-logo { height: 140px; margin-bottom: -46px; }
-    .draw-area .squall-year { font-size: 0.75rem; }
+    .fixed-squall-logo .squall-logo { height: 140px; margin-bottom: -46px; }
+    .fixed-squall-logo .squall-year { font-size: 0.75rem; }
     .current-prize-display { margin-bottom: 1.5rem; }
     .current-prize-label { font-size: 0.75rem; margin-bottom: 0.3rem; }
     .prize-select { font-size: 2.2rem; padding: 0.3rem 2.5rem 0.3rem 1rem; }
     .current-prize-value { font-size: 1.6rem; margin-top: 0.2rem; }
     .current-prize-desc { font-size: 1.2rem; margin-top: 0.2rem; }
     #wheelCanvas { width: 500px; height: 500px; }
-    .wheel-pointer { border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-right: 48px solid var(--fl-green); }
-    .overlay-squall-logo .squall-logo { height: 140px; margin-bottom: -46px; }
-    .overlay-squall-logo .squall-year { font-size: 0.75rem; }
+    .wheel-pointer { right: -56px; border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-right: 48px solid var(--fl-green); }
     .draw-overlay-name { font-size: 3rem; }
     .draw-overlay-desc { font-size: 1.5rem; max-width: 900px; }
     .draw-overlay-value { font-size: 1.8rem; }
@@ -582,17 +559,13 @@
     .floating-logo { top: 0.75rem; left: 1rem; }
     .floating-logo img { height: 28px; }
     .floating-controls { top: 0.75rem; right: 1rem; }
-    .overlay-fl-logo { top: 0.75rem; left: 1rem; }
-    .overlay-fl-logo img { height: 28px; }
-    .overlay-squall-logo .squall-logo { height: 120px; margin-bottom: -40px; }
-    .overlay-squall-logo .squall-year { font-size: 0.55rem; }
+    .fixed-squall-logo .squall-logo { height: 120px; margin-bottom: -40px; }
+    .fixed-squall-logo .squall-year { font-size: 0.55rem; }
     .draw-area { padding: 1.5rem 1rem; min-height: auto; }
-    .draw-area .squall-logo { height: 120px; margin-bottom: -40px; }
-    .draw-area .squall-year { font-size: 0.55rem; }
     .draw-subtitle { font-size: 0.75rem; margin-bottom: 1.5rem; }
     .prize-select { font-size: 1.4rem; padding: 0.4rem 2rem 0.4rem 0.75rem; }
     #wheelCanvas { width: 340px; height: 340px; }
-    .wheel-pointer { border-top: 14px solid transparent; border-bottom: 14px solid transparent; border-right: 34px solid var(--fl-green); }
+    .wheel-pointer { right: -40px; border-top: 14px solid transparent; border-bottom: 14px solid transparent; border-right: 34px solid var(--fl-green); }
     .draw-overlay-name { font-size: 2rem; }
     .draw-overlay-desc { font-size: 1rem; }
     .draw-overlay-value { font-size: 1.2rem; }
@@ -616,14 +589,11 @@
     .floating-logo { top: 0.5rem; left: 0.75rem; }
     .floating-logo img { height: 22px; }
     .floating-controls { top: 0.5rem; right: 0.75rem; }
-    .overlay-fl-logo { top: 0.5rem; left: 0.75rem; }
-    .overlay-fl-logo img { height: 22px; }
-    .overlay-squall-logo .squall-logo { height: 100px; margin-bottom: -33px; }
-    .overlay-squall-logo .squall-year { font-size: 0.45rem; }
+    .fixed-squall-logo { top: 0.5rem; padding: 0.3rem 0.5rem 0.3rem; }
+    .fixed-squall-logo .squall-logo { height: 100px; margin-bottom: -33px; }
+    .fixed-squall-logo .squall-year { font-size: 0.45rem; }
     .settings-toggle { padding: 0.4rem 0.75rem; font-size: 0.7rem; }
     .draw-area { padding: 1rem 0.75rem; }
-    .draw-area .squall-logo { height: 100px; margin-bottom: -33px; }
-    .draw-area .squall-year { font-size: 0.45rem; }
     .draw-subtitle { font-size: 0.65rem; letter-spacing: 0.15em; margin-bottom: 1rem; }
     .current-prize-display { margin-bottom: 1rem; }
     .current-prize-label { font-size: 0.6rem; }
@@ -636,7 +606,7 @@
     .current-prize-value { font-size: 0.85rem; }
     .current-prize-desc { font-size: 0.75rem; }
     #wheelCanvas { width: 280px; height: 280px; }
-    .wheel-pointer { border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-right: 28px solid var(--fl-green); }
+    .wheel-pointer { right: -34px; border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-right: 28px solid var(--fl-green); }
     .draw-overlay-prize { margin-bottom: 1rem; }
     .draw-overlay-name { font-size: 1.5rem; }
     .draw-overlay-desc { font-size: 0.85rem; }
@@ -682,6 +652,7 @@
   <div class="floating-logo">
     <img src="images/fourlines-logo-white.png" alt="FOURLINES">
   </div>
+  <div class="fixed-squall-logo"><div class="squall-logo-clip"><img src="images/snowkite-squall-logo.png" alt="Snowkite Squall" class="squall-logo"></div><div class="squall-year">O T T A W A &nbsp; 2 0 2 6</div></div>
   <div class="floating-controls">
     <button class="settings-toggle" id="refreshSheetBtn" title="Refresh from Google Sheet" style="display:none;padding:0.5rem 0.75rem;">&#8635;</button>
     <button class="settings-toggle" id="openSettings">Settings</button>
@@ -689,7 +660,6 @@
 
   <!-- Main Draw Area -->
   <div class="draw-area" id="drawArea">
-    <div class="squall-logo-wrap"><div class="squall-logo-clip"><img src="images/snowkite-squall-logo.png" alt="Snowkite Squall" class="squall-logo"></div><div class="squall-year">O T T A W A &nbsp; 2 0 2 6</div></div>
     <!-- Current prize being drawn -->
     <div class="current-prize-display" id="currentPrizeDisplay" style="display:none;">
       <div class="current-prize-label">Now Drawing For</div>
@@ -748,8 +718,6 @@
 
 <!-- Draw overlay (fullscreen spinner) -->
 <div class="draw-overlay" id="drawOverlay">
-  <div class="overlay-fl-logo"><img src="images/fourlines-logo-white.png" alt="FOURLINES"></div>
-  <div class="overlay-squall-logo"><div class="squall-logo-clip"><img src="images/snowkite-squall-logo.png" alt="Snowkite Squall" class="squall-logo"></div><div class="squall-year">O T T A W A &nbsp; 2 0 2 6</div></div>
   <div class="draw-overlay-prize">
     <div class="draw-overlay-label">Drawing For</div>
     <div class="draw-overlay-name" id="drawOverlayName"></div>
@@ -759,14 +727,12 @@
   <div class="wheel-area">
     <div class="wheel-pointer"></div>
     <canvas id="wheelCanvas"></canvas>
-    <div class="wheel-tap-hint" id="wheelTapHint" style="display:none;">TAP TO STOP</div>
+    <div class="wheel-stop-hint" id="wheelStopHint" style="display:none;">TAP OR PRESS SPACE TO STOP</div>
   </div>
 </div>
 
 <!-- Winner overlay -->
 <div class="winner-overlay" id="winnerOverlay">
-  <div class="overlay-fl-logo"><img src="images/fourlines-logo-white.png" alt="FOURLINES"></div>
-  <div class="overlay-squall-logo"><div class="squall-logo-clip"><img src="images/snowkite-squall-logo.png" alt="Snowkite Squall" class="squall-logo"></div><div class="squall-year">O T T A W A &nbsp; 2 0 2 6</div></div>
   <div class="winner-card">
     <div class="trophy">&#127942;</div>
     <div class="winner-label">Winner</div>
@@ -887,6 +853,7 @@ let participants = []; // { name, tickets, won: false, wonPrize: '' }
 let prizes = [];       // { name, value, description, drawn: false, winner: '' }
 let currentPrizeIndex = -1;
 let isSpinning = false;
+let wheelTapHandler = null; // current tap-to-stop handler
 let history = [];      // { name, prize, value }
 let leverMode = false;
 
@@ -1449,7 +1416,7 @@ function drawWheel(names, angle) {
 // ---- Draw animation ----
 function revealWinner(winner, prize, selectedPrizeIdx) {
   $('drawOverlay').classList.remove('visible');
-  $('wheelTapHint').style.display = 'none';
+  $('wheelStopHint').style.display = 'none';
 
   const pIdx = participants.findIndex(p => p.name === winner.name && !p.won);
   if (pIdx !== -1) {
@@ -1469,6 +1436,7 @@ function revealWinner(winner, prize, selectedPrizeIdx) {
   playWinnerSound();
 
   isSpinning = false;
+  wheelTapHandler = null;
   drawBtn.textContent = 'Draw Winner';
   renderParticipantsTable();
   updateUI();
@@ -1543,13 +1511,15 @@ drawBtn.onclick = () => {
     let tapped = false;
     let stopping = false;
 
-    $('wheelTapHint').style.display = '';
+    $('wheelStopHint').style.display = '';
 
     const tapHandler = () => {
       if (tapped) return;
       tapped = true;
-      $('wheelTapHint').style.display = 'none';
+      $('wheelStopHint').style.display = 'none';
+      wheelTapHandler = null;
     };
+    wheelTapHandler = tapHandler;
     wheelCanvas.onclick = tapHandler;
 
     function spinWheel() {
@@ -1670,6 +1640,31 @@ $('closeWinner').onclick = () => {
   $('winnerOverlay').classList.remove('visible');
   stopCelebration();
 };
+
+// ---- Spacebar universal action ----
+document.addEventListener('keydown', (e) => {
+  if (e.code !== 'Space') return;
+  // Don't trigger if typing in an input/textarea
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  e.preventDefault();
+
+  // If winner overlay is visible, close it
+  if ($('winnerOverlay').classList.contains('visible')) {
+    $('closeWinner').click();
+    return;
+  }
+
+  // If wheel is spinning and tap-to-stop is active, stop it
+  if (wheelTapHandler) {
+    wheelTapHandler();
+    return;
+  }
+
+  // Otherwise, trigger draw if possible
+  if (!drawBtn.disabled && !isSpinning) {
+    drawBtn.click();
+  }
+});
 
 // ---- Celebration System ----
 const confettiCanvas = $('confetti-canvas');
