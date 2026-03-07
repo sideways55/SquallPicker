@@ -771,6 +771,36 @@
       <div id="sheetStatus" style="font-size:0.7rem;margin-top:0.4rem;color:var(--fl-muted);"></div>
     </div>
 
+    <!-- Winner Logging section -->
+    <div class="settings-section">
+      <h3>Winner Logging (Google Apps Script)</h3>
+      <div class="paste-hint" style="margin-bottom:0.5rem;">
+        To log winners to a <strong>Winners</strong> sheet automatically, deploy a Google Apps Script web app on your spreadsheet and paste the URL below.
+        <details style="margin-top:0.4rem;">
+          <summary style="cursor:pointer;color:var(--fl-green);font-size:0.75rem;">Setup instructions</summary>
+          <ol style="font-size:0.7rem;margin-top:0.3rem;padding-left:1.2rem;color:var(--fl-muted);">
+            <li>In your Google Sheet, go to <strong>Extensions &gt; Apps Script</strong></li>
+            <li>Replace the code with:
+              <pre style="background:rgba(0,0,0,0.3);padding:0.4rem;border-radius:4px;margin:0.3rem 0;overflow-x:auto;font-size:0.65rem;">function doPost(e) {
+  var data = JSON.parse(e.postData.contents);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Winners');
+  sheet.appendRow([data.name, data.prize, data.timestamp]);
+  return ContentService.createTextOutput('OK');
+}</pre>
+            </li>
+            <li>Click <strong>Deploy &gt; New deployment</strong>, select <strong>Web app</strong></li>
+            <li>Set "Execute as" to <strong>Me</strong> and "Who has access" to <strong>Anyone</strong></li>
+            <li>Click <strong>Deploy</strong> and copy the URL</li>
+          </ol>
+        </details>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <input class="prize-input" id="appsScriptUrl" type="text" placeholder="Paste Apps Script web app URL here..." style="flex:1;font-size:0.8rem;">
+      </div>
+      <div id="scriptStatus" style="font-size:0.7rem;margin-top:0.4rem;color:var(--fl-muted);"></div>
+    </div>
+
     <!-- Participants section -->
     <div class="settings-section">
       <h3>
@@ -1078,7 +1108,7 @@ $('resetAll').onclick = () => {
 let sheetUrl = '';
 
 function saveState() {
-  localStorage.setItem('squallPicker', JSON.stringify({ participants, prizes, history, sheetUrl, selectedCelebrations, leverMode }));
+  localStorage.setItem('squallPicker', JSON.stringify({ participants, prizes, history, sheetUrl, appsScriptUrl, selectedCelebrations, leverMode }));
 }
 function loadState() {
   try {
@@ -1088,15 +1118,43 @@ function loadState() {
       prizes = data.prizes || [];
       history = data.history || [];
       sheetUrl = data.sheetUrl || '';
+      appsScriptUrl = data.appsScriptUrl || '';
       if (data.selectedCelebrations && data.selectedCelebrations.length) selectedCelebrations = data.selectedCelebrations;
       if (data.leverMode !== undefined) leverMode = data.leverMode;
     }
   } catch(e) {}
   $('sheetUrl').value = sheetUrl;
+  $('appsScriptUrl').value = appsScriptUrl;
   if (sheetUrl) $('refreshSheetBtn').style.display = '';
   $('leverModeToggle').checked = leverMode;
   renderCelebrationGrid();
 }
+
+// ---- Winner logging to Google Sheet ----
+let appsScriptUrl = '';
+
+function logWinnerToSheet(name, prize) {
+  if (!appsScriptUrl) return;
+  const timestamp = new Date().toLocaleString();
+  const statusEl = $('scriptStatus');
+  fetch(appsScriptUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, prize, timestamp })
+  }).then(() => {
+    statusEl.textContent = 'Logged: ' + name + ' — ' + prize;
+    statusEl.style.color = 'var(--fl-green-dark)';
+  }).catch(err => {
+    statusEl.textContent = 'Log failed: ' + err.message;
+    statusEl.style.color = 'var(--fl-coral)';
+  });
+}
+
+$('appsScriptUrl').addEventListener('change', () => {
+  appsScriptUrl = $('appsScriptUrl').value.trim();
+  saveState();
+});
 
 // ---- Google Sheet fetch ----
 function extractSheetId(url) {
@@ -1459,6 +1517,7 @@ function revealWinner(winner, prize, selectedPrizeIdx) {
   prizes[selectedPrizeIdx].drawn = true;
   prizes[selectedPrizeIdx].winner = winner.name;
   history.push({ name: winner.name, prize: prize.name, value: prize.value });
+  logWinnerToSheet(winner.name, prize.name);
 
   $('winnerName').textContent = winner.name;
   $('winnerPrize').textContent = prize.name;
