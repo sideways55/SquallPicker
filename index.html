@@ -89,7 +89,7 @@
     display: flex; align-items: center; gap: 0.5rem;
   }
   .fixed-squall-logo {
-    position: fixed; top: 0.75rem; left: 50%; transform: translateX(-50%);
+    position: fixed; top: 2.5rem; left: 50%; transform: translateX(-50%);
     z-index: 250; line-height: 0;
     background: rgba(255,255,255,0.12); padding: 0.4rem 0.75rem 0.4rem;
     border-radius: 10px;
@@ -1448,6 +1448,16 @@ function drawWheel(names, angle) {
   ctx.stroke();
 }
 
+// ---- Post winner to Google Sheets ----
+function postWinner(name, prize) {
+  const base = 'https://script.google.com/macros/s/AKfycbw5zvE9O9-rs9IlEypnYBMr4IdDxZTboB7q99Mzik-kKtARQBiSuRrShSceIaqOAl28/exec';
+  const sid = extractSheetId(sheetUrl) || '';
+  const url = base + '?' + new URLSearchParams({ name, prize, sheetId: sid }).toString();
+  console.log('postWinner URL:', url);
+  const img = new Image();
+  img.src = url;
+}
+
 // ---- Draw animation ----
 function revealWinner(winner, prize, selectedPrizeIdx) {
   $('drawOverlay').classList.remove('visible');
@@ -1461,6 +1471,7 @@ function revealWinner(winner, prize, selectedPrizeIdx) {
   prizes[selectedPrizeIdx].drawn = true;
   prizes[selectedPrizeIdx].winner = winner.name;
   history.push({ name: winner.name, prize: prize.name, value: prize.value });
+  postWinner(winner.name, prize.name);
 
   $('winnerName').textContent = winner.name;
   $('winnerPrize').textContent = prize.name;
