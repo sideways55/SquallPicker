@@ -260,6 +260,44 @@
     font-size: 1.5rem; color: var(--fl-green-light); font-weight: 700; margin-top: 0.2rem;
   }
 
+  /* Spinner area with lever */
+  .spinner-area {
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .stop-lever {
+    background: none; border: none; cursor: pointer; padding: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    animation: lever-pulse 1s ease-in-out infinite alternate;
+  }
+  .lever-handle {
+    width: 20px; height: 100px; border-radius: 10px;
+    background: linear-gradient(180deg, #e74c3c, #c0392b);
+    box-shadow: 0 4px 15px rgba(231,76,60,0.4), inset 0 2px 4px rgba(255,255,255,0.3);
+    position: relative; transition: transform 0.3s;
+  }
+  .lever-handle::before {
+    content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    box-shadow: 0 4px 15px rgba(231,76,60,0.5), inset 0 2px 6px rgba(255,255,255,0.3);
+  }
+  .lever-handle::after {
+    content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+    width: 30px; height: 12px; border-radius: 0 0 6px 6px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  }
+  .lever-text {
+    font-size: 0.7rem; font-weight: 800; letter-spacing: 0.15em;
+    color: #e74c3c; text-transform: uppercase;
+  }
+  .stop-lever:hover .lever-handle { transform: translateY(10px); }
+  .stop-lever.pulled .lever-handle { transform: translateY(40px); }
+  .stop-lever.pulled { animation: none; pointer-events: none; }
+  @keyframes lever-pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+  }
+
   /* Winner reveal */
   .winner-overlay {
     position: fixed; inset: 0; z-index: 200; display: none;
@@ -743,11 +781,17 @@
     <div class="draw-overlay-desc" id="drawOverlayDesc"></div>
     <div class="draw-overlay-value" id="drawOverlayValue"></div>
   </div>
-  <div class="spinner-container" id="spinnerContainer">
-    <div class="spinner-mask-top"></div>
-    <div class="spinner-mask-bottom"></div>
-    <div class="spinner-highlight"></div>
-    <div class="spinner-track" id="spinnerTrack"></div>
+  <div class="spinner-area">
+    <div class="spinner-container" id="spinnerContainer">
+      <div class="spinner-mask-top"></div>
+      <div class="spinner-mask-bottom"></div>
+      <div class="spinner-highlight"></div>
+      <div class="spinner-track" id="spinnerTrack"></div>
+    </div>
+    <button class="stop-lever" id="stopLever" style="display:none;">
+      <div class="lever-handle"></div>
+      <div class="lever-text">PULL!</div>
+    </button>
   </div>
 </div>
 
@@ -841,6 +885,15 @@
       </div>
     </div>
 
+    <!-- Lever mode section -->
+    <div class="settings-section">
+      <h3>Spin Mode</h3>
+      <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:0.85rem;color:#555;">
+        <input type="checkbox" id="leverModeToggle" style="width:18px;height:18px;accent-color:var(--fl-green-dark);">
+        <span><strong>Pull to Stop</strong> — Spinner runs until someone pulls the lever to reveal the winner</span>
+      </label>
+    </div>
+
     <!-- Celebrations section -->
     <div class="settings-section">
       <h3>Win Celebration</h3>
@@ -865,6 +918,7 @@ let prizes = [];       // { name, value, description, drawn: false, winner: '' }
 let currentPrizeIndex = -1;
 let isSpinning = false;
 let history = [];      // { name, prize, value }
+let leverMode = false;
 
 // ---- DOM refs ----
 const $ = id => document.getElementById(id);
@@ -1055,6 +1109,11 @@ $('clearPrizesBtn').onclick = () => {
 };
 
 // ---- Save & Reset ----
+$('leverModeToggle').onchange = () => {
+  leverMode = $('leverModeToggle').checked;
+  saveState();
+};
+
 $('saveSettings').onclick = () => {
   saveState();
   closeSettings();
@@ -1077,7 +1136,7 @@ $('resetAll').onclick = () => {
 let sheetUrl = '';
 
 function saveState() {
-  localStorage.setItem('squallPicker', JSON.stringify({ participants, prizes, history, sheetUrl, selectedCelebrations }));
+  localStorage.setItem('squallPicker', JSON.stringify({ participants, prizes, history, sheetUrl, selectedCelebrations, leverMode }));
 }
 function loadState() {
   try {
@@ -1088,10 +1147,12 @@ function loadState() {
       history = data.history || [];
       sheetUrl = data.sheetUrl || '';
       if (data.selectedCelebrations && data.selectedCelebrations.length) selectedCelebrations = data.selectedCelebrations;
+      if (data.leverMode !== undefined) leverMode = data.leverMode;
     }
   } catch(e) {}
   $('sheetUrl').value = sheetUrl;
   if (sheetUrl) $('refreshSheetBtn').style.display = '';
+  $('leverModeToggle').checked = leverMode;
   renderCelebrationGrid();
 }
 
@@ -1364,6 +1425,36 @@ function weightedPick(active) {
 }
 
 // ---- Draw animation ----
+function revealWinner(winner, prize, selectedPrizeIdx) {
+  // Hide draw overlay
+  $('drawOverlay').classList.remove('visible');
+  $('stopLever').style.display = 'none';
+
+  // Mark winner
+  const pIdx = participants.findIndex(p => p.name === winner.name && !p.won);
+  if (pIdx !== -1) {
+    participants[pIdx].won = true;
+    participants[pIdx].wonPrize = prize.name;
+  }
+  prizes[selectedPrizeIdx].drawn = true;
+  prizes[selectedPrizeIdx].winner = winner.name;
+  history.push({ name: winner.name, prize: prize.name, value: prize.value });
+
+  // Show winner overlay
+  $('winnerName').textContent = winner.name;
+  $('winnerPrize').textContent = prize.name;
+  $('winnerPrizeValue').textContent = prize.value || '';
+  $('winnerOverlay').classList.add('visible');
+
+  launchCelebration();
+  playWinnerSound();
+
+  isSpinning = false;
+  drawBtn.textContent = 'Draw Winner';
+  renderParticipantsTable();
+  updateUI();
+}
+
 drawBtn.onclick = () => {
   if (isSpinning) return;
   const selectedPrizeIdx = parseInt($('prizeSelect').value);
@@ -1385,43 +1476,8 @@ drawBtn.onclick = () => {
   $('drawOverlay').classList.add('visible');
 
   const winner = weightedPick(eligible);
-
-  // Build a long spin track with winner at end - show ALL active participants in animation
-  const trackNames = [];
-  const totalSpinItems = 60 + Math.floor(Math.random() * 20);
-  for (let i = 0; i < totalSpinItems - 1; i++) {
-    trackNames.push(allActive[Math.floor(Math.random() * allActive.length)].name);
-  }
-  trackNames.push(winner.name);
-
-  spinnerTrack.innerHTML = '';
-  trackNames.forEach((name, idx) => {
-    const div = document.createElement('div');
-    div.className = 'spinner-name';
-    if (idx === trackNames.length - 1) div.classList.add('active');
-    div.textContent = name;
-    spinnerTrack.appendChild(div);
-  });
-
-  const firstItem = spinnerTrack.querySelector('.spinner-name');
-  const itemHeight = firstItem ? firstItem.offsetHeight : 60;
-  const containerMid = spinnerContainer.clientHeight / 2 - itemHeight / 2;
-  spinnerTrack.style.transition = 'none';
-  spinnerTrack.style.transform = `translateY(${containerMid}px)`;
-
-  // Animate with easing
-  const targetOffset = -(trackNames.length - 1) * itemHeight + containerMid;
-  const duration = 4000 + Math.random() * 1000;
-  const startTime = performance.now();
-  const startY = containerMid;
-
-  function easeOutCubic(t) {
-    return 1 - Math.pow(1 - t, 3);
-  }
-
-  // Play a ticking sound effect using AudioContext
-  let lastTickIndex = -1;
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let lastTickIndex = -1;
 
   function playTick(freq, vol) {
     const osc = audioCtx.createOscillator();
@@ -1436,60 +1492,155 @@ drawBtn.onclick = () => {
     osc.stop(audioCtx.currentTime + 0.05);
   }
 
-  function animate(now) {
-    const elapsed = now - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = easeOutCubic(progress);
-    const currentY = startY + (targetOffset - startY) * eased;
-    spinnerTrack.style.transform = `translateY(${currentY}px)`;
-
-    // Tick sound
-    const currentIndex = Math.floor(Math.abs(currentY - containerMid) / itemHeight);
-    if (currentIndex !== lastTickIndex) {
-      lastTickIndex = currentIndex;
-      const slowdown = 1 - progress;
-      playTick(800 + slowdown * 400, 0.03 + slowdown * 0.05);
+  if (leverMode) {
+    // --- LEVER MODE: continuous spin until pulled ---
+    // Build a long looping track of random names
+    const loopNames = [];
+    for (let i = 0; i < 200; i++) {
+      loopNames.push(allActive[Math.floor(Math.random() * allActive.length)].name);
     }
 
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      // Done - reveal winner
-      setTimeout(() => {
-        // Hide draw overlay
-        $('drawOverlay').classList.remove('visible');
+    spinnerTrack.innerHTML = '';
+    loopNames.forEach(name => {
+      const div = document.createElement('div');
+      div.className = 'spinner-name';
+      div.textContent = name;
+      spinnerTrack.appendChild(div);
+    });
 
-        // Mark winner
-        const pIdx = participants.findIndex(p => p.name === winner.name && !p.won);
-        if (pIdx !== -1) {
-          participants[pIdx].won = true;
-          participants[pIdx].wonPrize = prize.name;
+    const firstItem = spinnerTrack.querySelector('.spinner-name');
+    const itemHeight = firstItem ? firstItem.offsetHeight : 60;
+    const containerMid = spinnerContainer.clientHeight / 2 - itemHeight / 2;
+    const speed = 12; // pixels per frame
+    let currentY = containerMid;
+    let leverPulled = false;
+    let decelerating = false;
+    let decelSpeed = speed;
+
+    // Show lever
+    const lever = $('stopLever');
+    lever.style.display = '';
+    lever.classList.remove('pulled');
+    lever.onclick = () => {
+      if (leverPulled) return;
+      leverPulled = true;
+      lever.classList.add('pulled');
+    };
+
+    function spinLoop() {
+      if (!isSpinning) return;
+      currentY -= leverPulled ? decelSpeed : speed;
+
+      // When near end of track, append more names and shift
+      const trackBottom = loopNames.length * itemHeight;
+      if (Math.abs(currentY) > trackBottom - spinnerContainer.clientHeight * 2) {
+        // Add more names
+        for (let i = 0; i < 50; i++) {
+          const name = allActive[Math.floor(Math.random() * allActive.length)].name;
+          loopNames.push(name);
+          const div = document.createElement('div');
+          div.className = 'spinner-name';
+          div.textContent = name;
+          spinnerTrack.appendChild(div);
         }
-        prizes[selectedPrizeIdx].drawn = true;
-        prizes[selectedPrizeIdx].winner = winner.name;
-        history.push({ name: winner.name, prize: prize.name, value: prize.value });
+      }
 
-        // Show winner overlay
-        $('winnerName').textContent = winner.name;
-        $('winnerPrize').textContent = prize.name;
-        $('winnerPrizeValue').textContent = prize.value || '';
-        $('winnerOverlay').classList.add('visible');
+      spinnerTrack.style.transform = `translateY(${currentY}px)`;
 
-        // Celebration animation
-        launchCelebration();
+      // Tick sound
+      const ci = Math.floor(Math.abs(currentY - containerMid) / itemHeight);
+      if (ci !== lastTickIndex) {
+        lastTickIndex = ci;
+        playTick(800 + (leverPulled ? decelSpeed / speed : 1) * 400, 0.04);
+      }
 
-        // Play winner sound
-        playWinnerSound();
-
-        isSpinning = false;
-        drawBtn.textContent = 'Draw Winner';
-        renderParticipantsTable();
-        updateUI();
-      }, 600);
+      if (leverPulled) {
+        if (!decelerating) {
+          decelerating = true;
+          decelSpeed = speed;
+          // Append the winner name at a good landing spot
+          const extraNames = 20 + Math.floor(Math.random() * 15);
+          for (let i = 0; i < extraNames; i++) {
+            const name = allActive[Math.floor(Math.random() * allActive.length)].name;
+            loopNames.push(name);
+            const div = document.createElement('div');
+            div.className = 'spinner-name';
+            div.textContent = name;
+            spinnerTrack.appendChild(div);
+          }
+          // Place winner at the end
+          loopNames.push(winner.name);
+          const winDiv = document.createElement('div');
+          winDiv.className = 'spinner-name active';
+          winDiv.textContent = winner.name;
+          spinnerTrack.appendChild(winDiv);
+        }
+        decelSpeed *= 0.985;
+        if (decelSpeed < 0.3) {
+          // Snap to winner (last item)
+          const winnerY = -((loopNames.length - 1) * itemHeight) + containerMid;
+          spinnerTrack.style.transform = `translateY(${winnerY}px)`;
+          setTimeout(() => revealWinner(winner, prize, selectedPrizeIdx), 600);
+          return;
+        }
+      }
+      requestAnimationFrame(spinLoop);
     }
-  }
+    requestAnimationFrame(spinLoop);
 
-  requestAnimationFrame(animate);
+  } else {
+    // --- STANDARD MODE: auto-decelerate ---
+    const trackNames = [];
+    const totalSpinItems = 60 + Math.floor(Math.random() * 20);
+    for (let i = 0; i < totalSpinItems - 1; i++) {
+      trackNames.push(allActive[Math.floor(Math.random() * allActive.length)].name);
+    }
+    trackNames.push(winner.name);
+
+    spinnerTrack.innerHTML = '';
+    trackNames.forEach((name, idx) => {
+      const div = document.createElement('div');
+      div.className = 'spinner-name';
+      if (idx === trackNames.length - 1) div.classList.add('active');
+      div.textContent = name;
+      spinnerTrack.appendChild(div);
+    });
+
+    const firstItem = spinnerTrack.querySelector('.spinner-name');
+    const itemHeight = firstItem ? firstItem.offsetHeight : 60;
+    const containerMid = spinnerContainer.clientHeight / 2 - itemHeight / 2;
+    spinnerTrack.style.transition = 'none';
+    spinnerTrack.style.transform = `translateY(${containerMid}px)`;
+
+    const targetOffset = -(trackNames.length - 1) * itemHeight + containerMid;
+    const duration = 4000 + Math.random() * 1000;
+    const startTime = performance.now();
+    const startY = containerMid;
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function animate(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(progress);
+      const currentY = startY + (targetOffset - startY) * eased;
+      spinnerTrack.style.transform = `translateY(${currentY}px)`;
+
+      const currentIndex = Math.floor(Math.abs(currentY - containerMid) / itemHeight);
+      if (currentIndex !== lastTickIndex) {
+        lastTickIndex = currentIndex;
+        const slowdown = 1 - progress;
+        playTick(800 + slowdown * 400, 0.03 + slowdown * 0.05);
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setTimeout(() => revealWinner(winner, prize, selectedPrizeIdx), 600);
+      }
+    }
+    requestAnimationFrame(animate);
+  }
 };
 
 // ---- Winner sound ----
