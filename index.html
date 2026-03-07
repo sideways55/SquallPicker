@@ -1843,8 +1843,17 @@ function launchCelebration() {
   const active = selectedCelebrations.length > 0 ? selectedCelebrations : ['confetti'];
   const pick = active[Math.floor(Math.random() * active.length)];
   stopCelebration();
+  resizeConfetti();
   confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-  setTimeout(() => CELEBRATIONS[pick].launch(), 50);
+  // Ensure previous animation frame has stopped before launching new one
+  setTimeout(() => {
+    celebrationRunning = false;
+    celebrationPieces = [];
+    confettiCtx.globalAlpha = 1;
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    console.log('Launching celebration:', pick, 'from selected:', active);
+    CELEBRATIONS[pick].launch();
+  }, 100);
 }
 
 // Render celebration grid in settings
