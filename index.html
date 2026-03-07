@@ -188,9 +188,9 @@
     filter: drop-shadow(-2px 0 6px rgba(0,0,0,0.5));
   }
   .wheel-stop-hint {
-    position: absolute; top: -2.5rem; left: 50%; transform: translateX(-50%);
     font-size: 0.85rem; font-weight: 700; letter-spacing: 0.2em;
     color: var(--fl-green); text-transform: uppercase; white-space: nowrap;
+    text-align: center; margin-bottom: 1rem;
     animation: hint-pulse 1.2s ease-in-out infinite alternate;
   }
   @keyframes hint-pulse {
@@ -748,10 +748,10 @@
     <div class="draw-overlay-desc" id="drawOverlayDesc"></div>
     <div class="draw-overlay-value" id="drawOverlayValue"></div>
   </div>
+  <div class="wheel-stop-hint" id="wheelStopHint" style="display:none;">TAP WHEEL OR PRESS SPACE TO STOP</div>
   <div class="wheel-area">
     <div class="wheel-pointer"></div>
     <canvas id="wheelCanvas"></canvas>
-    <div class="wheel-stop-hint" id="wheelStopHint" style="display:none;">TAP WHEEL OR PRESS SPACE TO STOP</div>
   </div>
 </div>
 
