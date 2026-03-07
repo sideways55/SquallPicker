@@ -89,16 +89,16 @@
     display: flex; align-items: center; gap: 0.5rem;
   }
   .fixed-squall-logo {
-    position: fixed; top: 0.5rem; left: 50%; transform: translateX(-50%);
+    position: fixed; top: 0.75rem; left: 50%; transform: translateX(-50%);
     z-index: 250; line-height: 0;
-    background: rgba(255,255,255,0.12); padding: 0.25rem 0.4rem 0.25rem;
-    border-radius: 6px;
+    background: rgba(255,255,255,0.12); padding: 0.4rem 0.75rem 0.4rem;
+    border-radius: 10px;
   }
   .fixed-squall-logo .squall-logo-clip { overflow: hidden; }
-  .fixed-squall-logo .squall-logo { height: 40px; display: block; margin-bottom: -13px; }
+  .fixed-squall-logo .squall-logo { height: 150px; display: block; margin-bottom: -50px; }
   .fixed-squall-logo .squall-year {
-    font-size: 0.28rem; letter-spacing: 0.3em; font-weight: 600;
-    color: #222; line-height: 1; padding: 2px 2px 0 0;
+    font-size: 0.7rem; letter-spacing: 0.45em; font-weight: 600;
+    color: #222; line-height: 1; padding: 6px 4px 0 0;
     font-family: Inter, system-ui, sans-serif; text-align: right;
   }
   .four-lines-divider {
@@ -118,7 +118,7 @@
   /* ---- Main Draw Area ---- */
   .draw-area {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-height: calc(100vh - 80px); padding: 3.5rem 2rem 2rem; position: relative;
+    min-height: calc(100vh - 80px); padding: 8rem 2rem 2rem; position: relative;
   }
   .draw-subtitle {
     font-size: 0.85rem; letter-spacing: 0.25em; text-transform: uppercase;
@@ -229,7 +229,7 @@
   .draw-overlay {
     position: fixed; inset: 0; z-index: 190; display: none;
     flex-direction: column; align-items: center; justify-content: center;
-    padding-top: 3.5rem;
+    padding-top: 8rem;
     background: var(--fl-navy); backdrop-filter: blur(10px);
   }
   .draw-overlay.visible { display: flex; }
@@ -254,7 +254,7 @@
   .winner-overlay {
     position: fixed; inset: 0; z-index: 200; display: none;
     align-items: center; justify-content: center;
-    padding-top: 3.5rem;
+    padding-top: 8rem;
     background: rgba(27,45,69,0.97); backdrop-filter: blur(10px);
   }
   .winner-overlay.visible { display: flex; }
@@ -527,7 +527,7 @@
 
   /* Responsive - Large Desktop */
   @media (min-width: 1200px) {
-    .draw-area { padding: 3.5rem 4rem 2rem; min-height: auto; }
+    .draw-area { padding: 8rem 4rem 2rem; min-height: auto; }
     .current-prize-display { margin-bottom: 1.5rem; }
     .current-prize-label { font-size: 0.75rem; margin-bottom: 0.3rem; }
     .prize-select { font-size: 2.2rem; padding: 0.3rem 2.5rem 0.3rem 1rem; }
@@ -567,7 +567,7 @@
     .floating-logo { top: 0.75rem; left: 1rem; }
     .floating-logo img { height: 28px; }
     .floating-controls { top: 0.75rem; right: 1rem; }
-    .draw-area { padding: 3.5rem 1rem 1.5rem; min-height: auto; }
+    .draw-area { padding: 7rem 1rem 1.5rem; min-height: auto; }
     .draw-subtitle { font-size: 0.75rem; margin-bottom: 1.5rem; }
     .prize-select { font-size: 1.4rem; padding: 0.4rem 2rem 0.4rem 0.75rem; }
     #wheelCanvas { width: 340px; height: 340px; }
@@ -595,10 +595,10 @@
     .floating-logo { top: 0.5rem; left: 0.75rem; }
     .floating-logo img { height: 22px; }
     .floating-controls { top: 0.5rem; right: 0.75rem; }
-    .fixed-squall-logo .squall-logo { height: 32px; margin-bottom: -10px; }
-    .fixed-squall-logo .squall-year { font-size: 0.22rem; }
+    .fixed-squall-logo .squall-logo { height: 100px; margin-bottom: -33px; }
+    .fixed-squall-logo .squall-year { font-size: 0.45rem; }
     .settings-toggle { padding: 0.4rem 0.75rem; font-size: 0.7rem; }
-    .draw-area { padding: 3rem 0.75rem 1rem; }
+    .draw-area { padding: 5.5rem 0.75rem 1rem; }
     .draw-subtitle { font-size: 0.65rem; letter-spacing: 0.15em; margin-bottom: 1rem; }
     .current-prize-display { margin-bottom: 1rem; }
     .current-prize-label { font-size: 0.6rem; }
