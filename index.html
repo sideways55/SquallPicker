@@ -237,6 +237,19 @@
     to { box-shadow: 0 0 40px rgba(91,207,165,0.6); }
   }
 
+  /* Overlay logos (shared by draw + winner overlays) */
+  .overlay-fl-logo {
+    position: absolute; top: 1rem; left: 1.5rem;
+  }
+  .overlay-fl-logo img { height: 32px; width: auto; opacity: 0.6; }
+  .overlay-squall-logo {
+    position: absolute; top: 0.75rem; left: 50%; transform: translateX(-50%);
+    background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem 0.2rem;
+    border-radius: 8px; line-height: 0; overflow: hidden; text-align: right;
+  }
+  .overlay-squall-logo .squall-logo { height: 50px; display: block; margin-bottom: -16px; }
+  .overlay-squall-logo .squall-year { font-size: 0.3rem; letter-spacing: 0.45em; font-weight: 600; color: #222; line-height: 1; padding: 2px 2px 3px 0; }
+
   /* Draw overlay (fullscreen spinner page) */
   .draw-overlay {
     position: fixed; inset: 0; z-index: 190; display: none;
@@ -580,6 +593,9 @@
     .spinner-highlight { height: 85px; }
     .spinner-name { font-size: 2.2rem; height: 85px; }
     .spinner-name.active { font-size: 2.6rem; }
+    .overlay-fl-logo img { height: 40px; }
+    .overlay-squall-logo .squall-logo { height: 60px; margin-bottom: -20px; }
+    .overlay-squall-logo .squall-year { font-size: 0.35rem; }
     .draw-overlay-name { font-size: 3rem; }
     .draw-overlay-desc { font-size: 1.5rem; max-width: 900px; }
     .draw-overlay-value { font-size: 1.8rem; }
@@ -612,6 +628,9 @@
     .floating-logo { top: 0.75rem; left: 1rem; }
     .floating-logo img { height: 28px; }
     .floating-controls { top: 0.75rem; right: 1rem; }
+    .overlay-fl-logo img { height: 24px; }
+    .overlay-squall-logo .squall-logo { height: 40px; margin-bottom: -13px; }
+    .overlay-squall-logo .squall-year { font-size: 0.25rem; }
     .draw-area { padding: 1.5rem 1rem; min-height: auto; }
     .draw-area .squall-logo { height: 120px; margin-bottom: -40px; }
     .draw-area .squall-year { font-size: 0.55rem; }
@@ -644,6 +663,10 @@
     .floating-logo { top: 0.5rem; left: 0.75rem; }
     .floating-logo img { height: 22px; }
     .floating-controls { top: 0.5rem; right: 0.75rem; }
+    .overlay-fl-logo { top: 0.5rem; left: 0.75rem; }
+    .overlay-fl-logo img { height: 20px; }
+    .overlay-squall-logo .squall-logo { height: 32px; margin-bottom: -10px; }
+    .overlay-squall-logo .squall-year { font-size: 0.2rem; }
     .settings-toggle { padding: 0.4rem 0.75rem; font-size: 0.7rem; }
     .draw-area { padding: 1rem 0.75rem; }
     .draw-area .squall-logo { height: 100px; margin-bottom: -33px; }
@@ -775,6 +798,8 @@
 
 <!-- Draw overlay (fullscreen spinner) -->
 <div class="draw-overlay" id="drawOverlay">
+  <div class="overlay-fl-logo"><img src="images/fourlines-logo-white.png" alt="FOURLINES"></div>
+  <div class="overlay-squall-logo"><div class="squall-logo-clip"><img src="images/snowkite-squall-logo.png" alt="Snowkite Squall" class="squall-logo"></div><div class="squall-year">O T T A W A &nbsp; 2 0 2 6</div></div>
   <div class="draw-overlay-prize">
     <div class="draw-overlay-label">Drawing For</div>
     <div class="draw-overlay-name" id="drawOverlayName"></div>
@@ -797,6 +822,8 @@
 
 <!-- Winner overlay -->
 <div class="winner-overlay" id="winnerOverlay">
+  <div class="overlay-fl-logo"><img src="images/fourlines-logo-white.png" alt="FOURLINES"></div>
+  <div class="overlay-squall-logo"><div class="squall-logo-clip"><img src="images/snowkite-squall-logo.png" alt="Snowkite Squall" class="squall-logo"></div><div class="squall-year">O T T A W A &nbsp; 2 0 2 6</div></div>
   <div class="winner-card">
     <div class="trophy">&#127942;</div>
     <div class="winner-label">Winner</div>
