@@ -185,11 +185,11 @@
     filter: drop-shadow(0 0 30px rgba(91,207,165,0.15));
   }
   .wheel-pointer {
-    position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+    position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
     width: 0; height: 0; z-index: 5;
-    border-left: 16px solid transparent; border-right: 16px solid transparent;
-    border-top: 40px solid var(--fl-green);
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    border-top: 16px solid transparent; border-bottom: 16px solid transparent;
+    border-right: 40px solid var(--fl-green);
+    filter: drop-shadow(-2px 0 6px rgba(0,0,0,0.5));
   }
   .wheel-tap-hint {
     position: absolute; bottom: -2rem; left: 50%; transform: translateX(-50%);
@@ -547,7 +547,7 @@
     .current-prize-value { font-size: 1.6rem; margin-top: 0.2rem; }
     .current-prize-desc { font-size: 1.2rem; margin-top: 0.2rem; }
     #wheelCanvas { width: 500px; height: 500px; }
-    .wheel-pointer { border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 48px solid var(--fl-green); }
+    .wheel-pointer { border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-right: 48px solid var(--fl-green); }
     .overlay-squall-logo .squall-logo { height: 140px; margin-bottom: -46px; }
     .overlay-squall-logo .squall-year { font-size: 0.75rem; }
     .draw-overlay-name { font-size: 3rem; }
@@ -592,7 +592,7 @@
     .draw-subtitle { font-size: 0.75rem; margin-bottom: 1.5rem; }
     .prize-select { font-size: 1.4rem; padding: 0.4rem 2rem 0.4rem 0.75rem; }
     #wheelCanvas { width: 340px; height: 340px; }
-    .wheel-pointer { border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 34px solid var(--fl-green); }
+    .wheel-pointer { border-top: 14px solid transparent; border-bottom: 14px solid transparent; border-right: 34px solid var(--fl-green); }
     .draw-overlay-name { font-size: 2rem; }
     .draw-overlay-desc { font-size: 1rem; }
     .draw-overlay-value { font-size: 1.2rem; }
@@ -636,7 +636,7 @@
     .current-prize-value { font-size: 0.85rem; }
     .current-prize-desc { font-size: 0.75rem; }
     #wheelCanvas { width: 280px; height: 280px; }
-    .wheel-pointer { border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 28px solid var(--fl-green); }
+    .wheel-pointer { border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-right: 28px solid var(--fl-green); }
     .draw-overlay-prize { margin-bottom: 1rem; }
     .draw-overlay-name { font-size: 1.5rem; }
     .draw-overlay-desc { font-size: 0.85rem; }
@@ -1516,10 +1516,10 @@ drawBtn.onclick = () => {
   const n = wheelNames.length;
   const arc = (Math.PI * 2) / n;
 
-  // Pointer is at top (270° = -π/2). We want winner's segment center under the pointer.
-  // Segment center angle = angle + winIdx * arc + arc/2 should equal -π/2 (mod 2π)
-  // So target angle = -π/2 - winIdx * arc - arc/2
-  const targetAngle = -Math.PI / 2 - winIdx * arc - arc / 2;
+  // Pointer is at right (0°). We want winner's segment center under the pointer.
+  // Segment center angle = angle + winIdx * arc + arc/2 should equal 0 (mod 2π)
+  // So target angle = -winIdx * arc - arc/2
+  const targetAngle = -winIdx * arc - arc / 2;
 
   // Audio
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
