@@ -1299,11 +1299,12 @@ $('resetDrawBtn').onclick = () => {
 function resizePrizeSelect() {
   const sel = $('prizeSelect');
   const text = sel.options[sel.selectedIndex]?.text || '';
+  const computed = getComputedStyle(sel);
   const measure = document.createElement('span');
-  measure.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:1.8rem;font-weight:800;font-family:Inter,sans-serif;';
+  measure.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:' + computed.fontSize + ';font-weight:' + computed.fontWeight + ';font-family:' + computed.fontFamily + ';';
   measure.textContent = text;
   document.body.appendChild(measure);
-  sel.style.width = (measure.offsetWidth + 60) + 'px'; // 60px for padding + arrow
+  sel.style.width = (measure.offsetWidth + 60) + 'px';
   document.body.removeChild(measure);
 }
 
