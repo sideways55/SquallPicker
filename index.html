@@ -280,6 +280,7 @@
   .winner-card .winner-prize-value {
     font-size: 1.8rem; color: var(--fl-green-light); margin-bottom: 2rem; font-weight: 700;
   }
+  .winner-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
   .winner-card .close-winner-btn {
     background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
     color: #fff; padding: 0.75rem 2.5rem; border-radius: 999px; cursor: pointer;
@@ -287,6 +288,8 @@
     transition: all 0.2s;
   }
   .winner-card .close-winner-btn:hover { background: var(--fl-green); color: var(--fl-navy); border-color: var(--fl-green); }
+  .winner-card .spin-again-btn { background: rgba(231,76,60,0.25); border: 2px solid #e74c3c; color: #e74c3c; }
+  .winner-card .spin-again-btn:hover { background: #e74c3c; color: #fff; border-color: #e74c3c; }
 
   /* Confetti canvas */
   #confetti-canvas {
@@ -746,7 +749,10 @@
     <div class="winner-name" id="winnerName"></div>
     <div class="winner-prize" id="winnerPrize"></div>
     <div class="winner-prize-value" id="winnerPrizeValue"></div>
-    <button class="close-winner-btn" id="closeWinner">Continue</button>
+    <div class="winner-actions">
+      <button class="close-winner-btn" id="closeWinner">Continue</button>
+      <button class="close-winner-btn spin-again-btn" id="spinAgain">Spin Again</button>
+    </div>
   </div>
 </div>
 
@@ -1685,6 +1691,39 @@ function playWinnerSound() {
 $('closeWinner').onclick = () => {
   $('winnerOverlay').classList.remove('visible');
   stopCelebration();
+};
+
+// ---- Spin Again: remove winner from raffle and re-draw same prize ----
+$('spinAgain').onclick = () => {
+  $('winnerOverlay').classList.remove('visible');
+  stopCelebration();
+
+  // Find the most recent history entry (the current winner)
+  const h = history[history.length - 1];
+  if (!h) return;
+
+  // Find the prize index and restore it to undrawn
+  const prIdx = prizes.findIndex(p => p.name === h.prize && p.drawn && p.winner === h.name);
+  if (prIdx === -1) return;
+  prizes[prIdx].drawn = false;
+  prizes[prIdx].winner = '';
+
+  // Remove the winner from participants entirely
+  const pIdx = participants.findIndex(p => p.name === h.name && p.won && p.wonPrize === h.prize);
+  if (pIdx !== -1) {
+    participants.splice(pIdx, 1);
+  }
+
+  // Remove from history
+  history.pop();
+
+  // Update UI and select the same prize
+  renderParticipantsTable();
+  updateUI();
+  $('prizeSelect').value = String(prIdx);
+
+  // Trigger a new draw after a brief delay
+  setTimeout(() => { drawBtn.click(); }, 300);
 };
 
 // ---- Spacebar universal action ----
