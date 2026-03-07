@@ -89,8 +89,8 @@
     display: flex; align-items: center; gap: 0.5rem;
   }
   .fixed-squall-logo {
-    position: fixed; top: 2.5rem; left: 50%; transform: translateX(-50%);
-    z-index: 250; line-height: 0;
+    position: fixed; top: 0.75rem; left: 50%; transform: translateX(-50%);
+    z-index: 200; line-height: 0; pointer-events: none;
     background: rgba(255,255,255,0.12); padding: 0.4rem 0.75rem 0.4rem;
     border-radius: 10px;
   }
@@ -118,7 +118,7 @@
   /* ---- Main Draw Area ---- */
   .draw-area {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-height: calc(100vh - 80px); padding: 8rem 2rem 2rem; position: relative;
+    min-height: calc(100vh - 80px); padding: 10rem 2rem 2rem; position: relative;
   }
   .draw-subtitle {
     font-size: 0.85rem; letter-spacing: 0.25em; text-transform: uppercase;
@@ -527,7 +527,7 @@
 
   /* Responsive - Large Desktop */
   @media (min-width: 1200px) {
-    .draw-area { padding: 8rem 4rem 2rem; min-height: auto; }
+    .draw-area { padding: 10rem 4rem 2rem; min-height: auto; }
     .current-prize-display { margin-bottom: 1.5rem; }
     .current-prize-label { font-size: 0.75rem; margin-bottom: 0.3rem; }
     .prize-select { font-size: 2.2rem; padding: 0.3rem 2.5rem 0.3rem 1rem; }
