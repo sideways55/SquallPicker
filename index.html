@@ -731,7 +731,7 @@
     <div class="draw-overlay-desc" id="drawOverlayDesc"></div>
     <div class="draw-overlay-value" id="drawOverlayValue"></div>
   </div>
-  <div class="wheel-stop-hint" id="wheelStopHint" style="display:none;">TAP WHEEL OR PRESS SPACE TO STOP</div>
+  <div class="wheel-stop-hint" id="wheelStopHint" style="visibility:hidden;">TAP WHEEL OR PRESS SPACE TO STOP</div>
   <div class="wheel-area">
     <div class="wheel-pointer"></div>
     <canvas id="wheelCanvas"></canvas>
@@ -1461,7 +1461,7 @@ function postWinner(name, prize) {
 // ---- Draw animation ----
 function revealWinner(winner, prize, selectedPrizeIdx) {
   $('drawOverlay').classList.remove('visible');
-  $('wheelStopHint').style.display = 'none';
+  $('wheelStopHint').style.visibility = 'hidden';
 
   const pIdx = participants.findIndex(p => p.name === winner.name && !p.won);
   if (pIdx !== -1) {
@@ -1557,12 +1557,12 @@ drawBtn.onclick = () => {
     let tapped = false;
     let stopping = false;
 
-    $('wheelStopHint').style.display = '';
+    $('wheelStopHint').style.visibility = 'visible';
 
     const tapHandler = () => {
       if (tapped) return;
       tapped = true;
-      $('wheelStopHint').style.display = 'none';
+      $('wheelStopHint').style.visibility = 'hidden';
       wheelTapHandler = null;
     };
     wheelTapHandler = tapHandler;
