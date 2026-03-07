@@ -176,39 +176,30 @@
   .prize-select:hover, .prize-select:focus { border-color: var(--fl-green); }
   .prize-select option { background: var(--fl-navy); color: #fff; font-size: 1rem; }
 
-  /* Slot machine / name spinner */
-  .spinner-container {
-    width: 700px; max-width: 90vw; height: 320px; position: relative;
-    overflow: hidden; border-radius: 20px;
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(91,207,165,0.15);
-    box-shadow: 0 0 60px rgba(91,207,165,0.05);
+  /* Prize wheel */
+  .wheel-area {
+    position: relative; display: flex; align-items: center; justify-content: center;
   }
-  .spinner-mask-top, .spinner-mask-bottom {
-    position: absolute; left: 0; right: 0; height: 80px; z-index: 2; pointer-events: none;
+  #wheelCanvas {
+    width: 420px; height: 420px; cursor: pointer;
+    filter: drop-shadow(0 0 30px rgba(91,207,165,0.15));
   }
-  .spinner-mask-top {
-    top: 0;
-    background: linear-gradient(to bottom, var(--fl-navy), transparent);
+  .wheel-pointer {
+    position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0; z-index: 5;
+    border-left: 16px solid transparent; border-right: 16px solid transparent;
+    border-top: 40px solid var(--fl-green);
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
   }
-  .spinner-mask-bottom {
-    bottom: 0;
-    background: linear-gradient(to top, var(--fl-navy), transparent);
+  .wheel-tap-hint {
+    position: absolute; bottom: -2rem; left: 50%; transform: translateX(-50%);
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.2em;
+    color: var(--fl-green); text-transform: uppercase;
+    animation: hint-pulse 1.2s ease-in-out infinite alternate;
   }
-  .spinner-highlight {
-    position: absolute; top: 50%; left: 0; right: 0; height: 75px; transform: translateY(-50%);
-    border-top: 2px solid var(--fl-green); border-bottom: 2px solid var(--fl-green);
-    background: rgba(91,207,165,0.06); z-index: 1; pointer-events: none;
-  }
-  .spinner-track {
-    position: absolute; left: 0; right: 0; transition: transform 0.1s linear;
-  }
-  .spinner-name {
-    height: 75px; display: flex; align-items: center; justify-content: center;
-    font-size: 2rem; font-weight: 700; color: rgba(255,255,255,0.65);
-    letter-spacing: 0.05em; white-space: nowrap;
-  }
-  .spinner-name.active {
-    color: #fff; font-size: 2.3rem;
+  @keyframes hint-pulse {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
   }
 
   /* Draw button */
@@ -277,43 +268,6 @@
     font-size: 1.5rem; color: var(--fl-green-light); font-weight: 700; margin-top: 0.2rem;
   }
 
-  /* Spinner area with lever */
-  .spinner-area {
-    display: flex; align-items: center; gap: 1.5rem;
-  }
-  .stop-lever {
-    background: none; border: none; cursor: pointer; padding: 0;
-    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-    animation: lever-pulse 1s ease-in-out infinite alternate;
-  }
-  .lever-handle {
-    width: 20px; height: 100px; border-radius: 10px;
-    background: linear-gradient(180deg, #e74c3c, #c0392b);
-    box-shadow: 0 4px 15px rgba(231,76,60,0.4), inset 0 2px 4px rgba(255,255,255,0.3);
-    position: relative; transition: transform 0.3s;
-  }
-  .lever-handle::before {
-    content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-    width: 36px; height: 36px; border-radius: 50%;
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    box-shadow: 0 4px 15px rgba(231,76,60,0.5), inset 0 2px 6px rgba(255,255,255,0.3);
-  }
-  .lever-handle::after {
-    content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
-    width: 30px; height: 12px; border-radius: 0 0 6px 6px;
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
-  }
-  .lever-text {
-    font-size: 0.7rem; font-weight: 800; letter-spacing: 0.15em;
-    color: #e74c3c; text-transform: uppercase;
-  }
-  .stop-lever:hover .lever-handle { transform: translateY(10px); }
-  .stop-lever.pulled .lever-handle { transform: translateY(40px); }
-  .stop-lever.pulled { animation: none; pointer-events: none; }
-  @keyframes lever-pulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.05); }
-  }
 
   /* Winner reveal */
   .winner-overlay {
@@ -592,11 +546,8 @@
     .prize-select { font-size: 2.2rem; padding: 0.3rem 2.5rem 0.3rem 1rem; }
     .current-prize-value { font-size: 1.6rem; margin-top: 0.2rem; }
     .current-prize-desc { font-size: 1.2rem; margin-top: 0.2rem; }
-    .spinner-container { width: 900px; height: 380px; border-radius: 20px; }
-    .spinner-mask-top, .spinner-mask-bottom { height: 130px; }
-    .spinner-highlight { height: 85px; }
-    .spinner-name { font-size: 2.2rem; height: 85px; }
-    .spinner-name.active { font-size: 2.6rem; }
+    #wheelCanvas { width: 500px; height: 500px; }
+    .wheel-pointer { border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 48px solid var(--fl-green); }
     .overlay-squall-logo .squall-logo { height: 140px; margin-bottom: -46px; }
     .overlay-squall-logo .squall-year { font-size: 0.75rem; }
     .draw-overlay-name { font-size: 3rem; }
@@ -640,10 +591,8 @@
     .draw-area .squall-year { font-size: 0.55rem; }
     .draw-subtitle { font-size: 0.75rem; margin-bottom: 1.5rem; }
     .prize-select { font-size: 1.4rem; padding: 0.4rem 2rem 0.4rem 0.75rem; }
-    .spinner-container { height: 250px; width: 90vw; }
-    .spinner-name { font-size: 1.5rem; height: 60px; }
-    .spinner-name.active { font-size: 1.7rem; }
-    .spinner-highlight { height: 60px; }
+    #wheelCanvas { width: 340px; height: 340px; }
+    .wheel-pointer { border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 34px solid var(--fl-green); }
     .draw-overlay-name { font-size: 2rem; }
     .draw-overlay-desc { font-size: 1rem; }
     .draw-overlay-value { font-size: 1.2rem; }
@@ -686,11 +635,8 @@
     .value-tally { max-width: 100%; }
     .current-prize-value { font-size: 0.85rem; }
     .current-prize-desc { font-size: 0.75rem; }
-    .spinner-container { height: 200px; border-radius: 12px; width: 95vw; }
-    .spinner-mask-top, .spinner-mask-bottom { height: 60px; }
-    .spinner-name { font-size: 1.1rem; height: 50px; padding: 0 0.5rem; overflow: hidden; text-overflow: ellipsis; }
-    .spinner-name.active { font-size: 1.25rem; }
-    .spinner-highlight { height: 50px; }
+    #wheelCanvas { width: 280px; height: 280px; }
+    .wheel-pointer { border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 28px solid var(--fl-green); }
     .draw-overlay-prize { margin-bottom: 1rem; }
     .draw-overlay-name { font-size: 1.5rem; }
     .draw-overlay-desc { font-size: 0.85rem; }
@@ -810,17 +756,10 @@
     <div class="draw-overlay-desc" id="drawOverlayDesc"></div>
     <div class="draw-overlay-value" id="drawOverlayValue"></div>
   </div>
-  <div class="spinner-area">
-    <div class="spinner-container" id="spinnerContainer">
-      <div class="spinner-mask-top"></div>
-      <div class="spinner-mask-bottom"></div>
-      <div class="spinner-highlight"></div>
-      <div class="spinner-track" id="spinnerTrack"></div>
-    </div>
-    <button class="stop-lever" id="stopLever" style="display:none;">
-      <div class="lever-handle"></div>
-      <div class="lever-text">PULL!</div>
-    </button>
+  <div class="wheel-area">
+    <div class="wheel-pointer"></div>
+    <canvas id="wheelCanvas"></canvas>
+    <div class="wheel-tap-hint" id="wheelTapHint" style="display:none;">TAP TO STOP</div>
   </div>
 </div>
 
@@ -921,7 +860,7 @@
       <h3>Spin Mode</h3>
       <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:0.85rem;color:#555;">
         <input type="checkbox" id="leverModeToggle" style="width:18px;height:18px;accent-color:var(--fl-green-dark);">
-        <span><strong>Pull to Stop</strong> — Spinner runs until someone pulls the lever to reveal the winner</span>
+        <span><strong>Tap to Stop</strong> — Wheel spins until someone taps to reveal the winner</span>
       </label>
     </div>
 
@@ -1415,35 +1354,6 @@ function updatePrizeDetails() {
 }
 $('prizeSelect').addEventListener('change', updatePrizeDetails);
 
-// ---- Spinner ----
-let spinnerNames = [];
-
-function buildSpinnerNames(active) {
-  spinnerNames = active.map(p => p.name);
-  // Pad to at least 20 for visual effect
-  while (spinnerNames.length > 0 && spinnerNames.length < 20) {
-    spinnerNames = spinnerNames.concat(active.map(p => p.name));
-  }
-  // Shuffle
-  for (let i = spinnerNames.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [spinnerNames[i], spinnerNames[j]] = [spinnerNames[j], spinnerNames[i]];
-  }
-  renderSpinnerTrack();
-}
-
-function renderSpinnerTrack() {
-  spinnerTrack.innerHTML = '';
-  spinnerNames.forEach(name => {
-    const div = document.createElement('div');
-    div.className = 'spinner-name';
-    div.textContent = name;
-    spinnerTrack.appendChild(div);
-  });
-  // Center the track
-  spinnerTrack.style.transform = `translateY(${spinnerContainer.clientHeight / 2 - 30}px)`;
-}
-
 // ---- Weighted random pick ----
 function weightedPick(active) {
   const totalTickets = active.reduce((s, p) => s + p.tickets, 0);
@@ -1455,13 +1365,92 @@ function weightedPick(active) {
   return active[active.length - 1];
 }
 
+// ---- Prize Wheel ----
+const wheelCanvas = $('wheelCanvas');
+const wheelCtx = wheelCanvas.getContext('2d');
+const WHEEL_COLORS = [
+  '#2E9B74', '#1B2D45', '#5BCFA5', '#243B55', '#A8EDCE', '#1e3a5f',
+  '#3aaf8a', '#15253d', '#7eddb8', '#2c4a6e'
+];
+
+function drawWheel(names, angle) {
+  const dpr = window.devicePixelRatio || 1;
+  const cssSize = wheelCanvas.getBoundingClientRect().width;
+  wheelCanvas.width = cssSize * dpr;
+  wheelCanvas.height = cssSize * dpr;
+  const ctx = wheelCtx;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const cx = cssSize / 2, cy = cssSize / 2, r = cssSize / 2 - 4;
+  const n = names.length;
+  const arc = (Math.PI * 2) / n;
+
+  ctx.clearRect(0, 0, cssSize, cssSize);
+
+  // Draw segments
+  for (let i = 0; i < n; i++) {
+    const startAngle = angle + i * arc;
+    const endAngle = startAngle + arc;
+
+    // Segment fill
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+    ctx.fill();
+
+    // Segment border
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Knob/peg on outer edge at segment boundary
+    const knobAngle = startAngle;
+    const knobX = cx + (r - 2) * Math.cos(knobAngle);
+    const knobY = cy + (r - 2) * Math.sin(knobAngle);
+    ctx.beginPath();
+    ctx.arc(knobX, knobY, 4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fill();
+
+    // Name text
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(startAngle + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    const fontSize = Math.min(14, Math.max(9, (r * 0.85 * arc) / 2.5));
+    ctx.font = `bold ${fontSize}px Inter, system-ui, sans-serif`;
+    ctx.fillStyle = '#fff';
+    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur = 2;
+    // Truncate long names
+    let displayName = names[i];
+    const maxWidth = r * 0.75;
+    while (ctx.measureText(displayName).width > maxWidth && displayName.length > 3) {
+      displayName = displayName.slice(0, -1);
+    }
+    if (displayName !== names[i]) displayName += '…';
+    ctx.fillText(displayName, r - 14, 0);
+    ctx.restore();
+  }
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.12, 0, Math.PI * 2);
+  ctx.fillStyle = '#1B2D45';
+  ctx.fill();
+  ctx.strokeStyle = 'var(--fl-green)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
 // ---- Draw animation ----
 function revealWinner(winner, prize, selectedPrizeIdx) {
-  // Hide draw overlay
   $('drawOverlay').classList.remove('visible');
-  $('stopLever').style.display = 'none';
+  $('wheelTapHint').style.display = 'none';
 
-  // Mark winner
   const pIdx = participants.findIndex(p => p.name === winner.name && !p.won);
   if (pIdx !== -1) {
     participants[pIdx].won = true;
@@ -1471,7 +1460,6 @@ function revealWinner(winner, prize, selectedPrizeIdx) {
   prizes[selectedPrizeIdx].winner = winner.name;
   history.push({ name: winner.name, prize: prize.name, value: prize.value });
 
-  // Show winner overlay
   $('winnerName').textContent = winner.name;
   $('winnerPrize').textContent = prize.name;
   $('winnerPrizeValue').textContent = prize.value || '';
@@ -1500,153 +1488,136 @@ drawBtn.onclick = () => {
   drawBtn.disabled = true;
   drawBtn.textContent = 'Drawing...';
 
-  // Show draw overlay
   $('drawOverlayName').textContent = prize.name;
   $('drawOverlayDesc').textContent = prize.description || '';
   $('drawOverlayValue').textContent = prize.value || '';
   $('drawOverlay').classList.add('visible');
 
   const winner = weightedPick(eligible);
+
+  // Build wheel names — all active participants, padded + shuffled
+  let wheelNames = allActive.map(p => p.name);
+  while (wheelNames.length > 0 && wheelNames.length < 16) {
+    wheelNames = wheelNames.concat(allActive.map(p => p.name));
+  }
+  // Shuffle
+  for (let i = wheelNames.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [wheelNames[i], wheelNames[j]] = [wheelNames[j], wheelNames[i]];
+  }
+  // Cap at reasonable number for readability
+  if (wheelNames.length > 40) wheelNames = wheelNames.slice(0, 40);
+  // Ensure winner is on the wheel
+  const winnerIdx = wheelNames.indexOf(winner.name);
+  if (winnerIdx === -1) wheelNames[0] = winner.name;
+
+  // Find winner segment index
+  const winIdx = wheelNames.indexOf(winner.name);
+  const n = wheelNames.length;
+  const arc = (Math.PI * 2) / n;
+
+  // Pointer is at top (270° = -π/2). We want winner's segment center under the pointer.
+  // Segment center angle = angle + winIdx * arc + arc/2 should equal -π/2 (mod 2π)
+  // So target angle = -π/2 - winIdx * arc - arc/2
+  const targetAngle = -Math.PI / 2 - winIdx * arc - arc / 2;
+
+  // Audio
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  let lastTickIndex = -1;
+  let lastTickSeg = -1;
 
   function playTick(freq, vol) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.frequency.value = freq;
-    osc.type = 'sine';
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.frequency.value = freq; osc.type = 'sine';
     gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.06);
   }
 
   if (leverMode) {
-    // --- LEVER MODE: continuous spin until pulled ---
-    // Build a long looping track of random names
-    const loopNames = [];
-    for (let i = 0; i < 200; i++) {
-      loopNames.push(allActive[Math.floor(Math.random() * allActive.length)].name);
-    }
+    // --- TAP TO STOP MODE ---
+    let angle = Math.random() * Math.PI * 2;
+    const spinSpeed = 0.15 + Math.random() * 0.05; // rad/frame
+    let currentSpeed = spinSpeed;
+    let tapped = false;
+    let stopping = false;
 
-    spinnerTrack.innerHTML = '';
-    loopNames.forEach(name => {
-      const div = document.createElement('div');
-      div.className = 'spinner-name';
-      div.textContent = name;
-      spinnerTrack.appendChild(div);
-    });
+    $('wheelTapHint').style.display = '';
 
-    const firstItem = spinnerTrack.querySelector('.spinner-name');
-    const itemHeight = firstItem ? firstItem.offsetHeight : 60;
-    const containerMid = spinnerContainer.clientHeight / 2 - itemHeight / 2;
-    const speed = 12; // pixels per frame
-    let currentY = containerMid;
-    let leverPulled = false;
-    let decelerating = false;
-    let decelSpeed = speed;
-
-    // Show lever
-    const lever = $('stopLever');
-    lever.style.display = '';
-    lever.classList.remove('pulled');
-    lever.onclick = () => {
-      if (leverPulled) return;
-      leverPulled = true;
-      lever.classList.add('pulled');
+    const tapHandler = () => {
+      if (tapped) return;
+      tapped = true;
+      $('wheelTapHint').style.display = 'none';
     };
+    wheelCanvas.onclick = tapHandler;
 
-    function spinLoop() {
+    function spinWheel() {
       if (!isSpinning) return;
-      currentY -= leverPulled ? decelSpeed : speed;
+      angle += currentSpeed;
+      drawWheel(wheelNames, angle);
 
-      // When near end of track, append more names and shift
-      const trackBottom = loopNames.length * itemHeight;
-      if (Math.abs(currentY) > trackBottom - spinnerContainer.clientHeight * 2) {
-        // Add more names
-        for (let i = 0; i < 50; i++) {
-          const name = allActive[Math.floor(Math.random() * allActive.length)].name;
-          loopNames.push(name);
-          const div = document.createElement('div');
-          div.className = 'spinner-name';
-          div.textContent = name;
-          spinnerTrack.appendChild(div);
-        }
+      // Tick on segment boundary
+      const seg = Math.floor((((-angle % (Math.PI * 2)) + Math.PI * 4) % (Math.PI * 2)) / arc);
+      if (seg !== lastTickSeg) {
+        lastTickSeg = seg;
+        playTick(600 + currentSpeed / spinSpeed * 600, 0.04);
       }
 
-      spinnerTrack.style.transform = `translateY(${currentY}px)`;
+      if (tapped) {
+        if (!stopping) {
+          stopping = true;
+          // Calculate how much more to spin to land on winner
+          const normalizedAngle = ((angle % (Math.PI * 2)) + Math.PI * 4) % (Math.PI * 2);
+          const normalizedTarget = ((targetAngle % (Math.PI * 2)) + Math.PI * 4) % (Math.PI * 2);
+          let diff = normalizedTarget - normalizedAngle;
+          if (diff > 0) diff -= Math.PI * 2;
+          // Add extra full rotations for dramatic effect
+          const extraSpins = (3 + Math.floor(Math.random() * 3)) * Math.PI * 2;
+          const totalRemaining = diff - extraSpins; // negative = clockwise
+          // We'll decelerate over this distance
+          const decelStart = angle;
+          const decelEnd = angle + totalRemaining;
+          const decelDistance = Math.abs(totalRemaining);
+          const decelDuration = decelDistance / (currentSpeed * 0.5); // frames approx
 
-      // Tick sound
-      const ci = Math.floor(Math.abs(currentY - containerMid) / itemHeight);
-      if (ci !== lastTickIndex) {
-        lastTickIndex = ci;
-        playTick(800 + (leverPulled ? decelSpeed / speed : 1) * 400, 0.04);
-      }
+          let decelFrame = 0;
+          function decelerate() {
+            decelFrame++;
+            const t = Math.min(decelFrame / decelDuration, 1);
+            const eased = 1 - Math.pow(1 - t, 3);
+            angle = decelStart + totalRemaining * eased;
+            currentSpeed = Math.abs(totalRemaining) * 3 * Math.pow(1 - t, 2) / decelDuration;
+            drawWheel(wheelNames, angle);
 
-      if (leverPulled) {
-        if (!decelerating) {
-          decelerating = true;
-          decelSpeed = speed;
-          // Append the winner name at a good landing spot
-          const extraNames = 20 + Math.floor(Math.random() * 15);
-          for (let i = 0; i < extraNames; i++) {
-            const name = allActive[Math.floor(Math.random() * allActive.length)].name;
-            loopNames.push(name);
-            const div = document.createElement('div');
-            div.className = 'spinner-name';
-            div.textContent = name;
-            spinnerTrack.appendChild(div);
+            const s2 = Math.floor((((-angle % (Math.PI * 2)) + Math.PI * 4) % (Math.PI * 2)) / arc);
+            if (s2 !== lastTickSeg) {
+              lastTickSeg = s2;
+              playTick(600 + currentSpeed / spinSpeed * 600, 0.03 + (1 - t) * 0.04);
+            }
+
+            if (t < 1) {
+              requestAnimationFrame(decelerate);
+            } else {
+              wheelCanvas.onclick = null;
+              setTimeout(() => revealWinner(winner, prize, selectedPrizeIdx), 800);
+            }
           }
-          // Place winner at the end
-          loopNames.push(winner.name);
-          const winDiv = document.createElement('div');
-          winDiv.className = 'spinner-name active';
-          winDiv.textContent = winner.name;
-          spinnerTrack.appendChild(winDiv);
-        }
-        decelSpeed *= 0.985;
-        if (decelSpeed < 0.3) {
-          // Snap to winner (last item)
-          const winnerY = -((loopNames.length - 1) * itemHeight) + containerMid;
-          spinnerTrack.style.transform = `translateY(${winnerY}px)`;
-          setTimeout(() => revealWinner(winner, prize, selectedPrizeIdx), 600);
+          requestAnimationFrame(decelerate);
           return;
         }
       }
-      requestAnimationFrame(spinLoop);
+      requestAnimationFrame(spinWheel);
     }
-    requestAnimationFrame(spinLoop);
+    requestAnimationFrame(spinWheel);
 
   } else {
-    // --- STANDARD MODE: auto-decelerate ---
-    const trackNames = [];
-    const totalSpinItems = 60 + Math.floor(Math.random() * 20);
-    for (let i = 0; i < totalSpinItems - 1; i++) {
-      trackNames.push(allActive[Math.floor(Math.random() * allActive.length)].name);
-    }
-    trackNames.push(winner.name);
-
-    spinnerTrack.innerHTML = '';
-    trackNames.forEach((name, idx) => {
-      const div = document.createElement('div');
-      div.className = 'spinner-name';
-      if (idx === trackNames.length - 1) div.classList.add('active');
-      div.textContent = name;
-      spinnerTrack.appendChild(div);
-    });
-
-    const firstItem = spinnerTrack.querySelector('.spinner-name');
-    const itemHeight = firstItem ? firstItem.offsetHeight : 60;
-    const containerMid = spinnerContainer.clientHeight / 2 - itemHeight / 2;
-    spinnerTrack.style.transition = 'none';
-    spinnerTrack.style.transform = `translateY(${containerMid}px)`;
-
-    const targetOffset = -(trackNames.length - 1) * itemHeight + containerMid;
-    const duration = 4000 + Math.random() * 1000;
+    // --- AUTO MODE ---
+    const totalRotation = (5 + Math.random() * 5) * Math.PI * 2;
+    const finalAngle = targetAngle;
+    const startAngleVal = finalAngle - totalRotation;
+    const duration = 5000 + Math.random() * 2000;
     const startTime = performance.now();
-    const startY = containerMid;
 
     function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
@@ -1654,20 +1625,21 @@ drawBtn.onclick = () => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const eased = easeOutCubic(progress);
-      const currentY = startY + (targetOffset - startY) * eased;
-      spinnerTrack.style.transform = `translateY(${currentY}px)`;
+      const angle = startAngleVal + totalRotation * eased;
+      drawWheel(wheelNames, angle);
 
-      const currentIndex = Math.floor(Math.abs(currentY - containerMid) / itemHeight);
-      if (currentIndex !== lastTickIndex) {
-        lastTickIndex = currentIndex;
+      // Tick
+      const seg = Math.floor((((-angle % (Math.PI * 2)) + Math.PI * 4) % (Math.PI * 2)) / arc);
+      if (seg !== lastTickSeg) {
+        lastTickSeg = seg;
         const slowdown = 1 - progress;
-        playTick(800 + slowdown * 400, 0.03 + slowdown * 0.05);
+        playTick(600 + slowdown * 600, 0.03 + slowdown * 0.04);
       }
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        setTimeout(() => revealWinner(winner, prize, selectedPrizeIdx), 600);
+        setTimeout(() => revealWinner(winner, prize, selectedPrizeIdx), 800);
       }
     }
     requestAnimationFrame(animate);
@@ -2042,7 +2014,6 @@ function launchCelebration() {
     celebrationPieces = [];
     confettiCtx.globalAlpha = 1;
     confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    console.log('Launching celebration:', pick, 'from selected:', active);
     CELEBRATIONS[pick].launch();
   }, 100);
 }
