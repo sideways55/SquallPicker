@@ -347,7 +347,15 @@
     border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
     animation: fade-in-up 0.4s ease-out;
   }
+  .history-item .hi-left { display: flex; align-items: center; gap: 0.5rem; }
   .history-item .hi-name { font-weight: 700; font-size: 0.95rem; color: rgba(255,255,255,0.9); }
+  .history-item .hi-remove {
+    width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
+    background: none; color: rgba(255,255,255,0.4); font-size: 0.7rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.2s; line-height: 1; padding: 0;
+  }
+  .hi-remove:hover { border-color: var(--fl-coral); color: var(--fl-coral); background: rgba(255,99,99,0.1); }
   .history-item .hi-prize { font-size: 0.8rem; color: var(--fl-green-light); font-weight: 500; }
 
   @keyframes fade-in-up {
@@ -1271,9 +1279,12 @@ function updateUI() {
   // History
   if (history.length > 0) {
     $('historySection').style.display = '';
-    $('historyList').innerHTML = history.map(h =>
+    $('historyList').innerHTML = history.map((h, i) =>
       `<div class="history-item">
-        <span class="hi-name">${escHtml(h.name)}</span>
+        <div class="hi-left">
+          <button class="hi-remove" onclick="undoWinner(${i})" title="Remove winner">&times;</button>
+          <span class="hi-name">${escHtml(h.name)}</span>
+        </div>
         <span class="hi-prize">${escHtml(h.prize)}${h.value ? ' (' + escHtml(h.value) + ')' : ''}</span>
       </div>`
     ).reverse().join('');
@@ -1282,6 +1293,31 @@ function updateUI() {
   }
 
   saveState();
+}
+
+// ---- Undo a winner ----
+function undoWinner(histIdx) {
+  const h = history[histIdx];
+  if (!h) return;
+  if (!confirm(`Remove ${h.name} as winner of "${h.prize}"? This will return the prize to the pool.`)) return;
+
+  // Restore participant
+  const pIdx = participants.findIndex(p => p.name === h.name && p.won && p.wonPrize === h.prize);
+  if (pIdx !== -1) {
+    participants[pIdx].won = false;
+    participants[pIdx].wonPrize = '';
+  }
+
+  // Restore prize
+  const prIdx = prizes.findIndex(p => p.name === h.prize && p.drawn && p.winner === h.name);
+  if (prIdx !== -1) {
+    prizes[prIdx].drawn = false;
+    prizes[prIdx].winner = '';
+  }
+
+  history.splice(histIdx, 1);
+  renderParticipantsTable();
+  updateUI();
 }
 
 // ---- Reset draw ----
