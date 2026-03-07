@@ -330,14 +330,13 @@
   }
 
   /* Stats bar */
-  .stats-bar {
-    display: flex; gap: 2rem; margin-top: 1.25rem; padding: 1rem 2rem;
-    background: rgba(255,255,255,0.05); border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.1);
+  .prizes-left-line {
+    margin-top: 1.25rem; font-size: 0.85rem; color: rgba(255,255,255,0.45);
+    letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500;
   }
-  .stat { text-align: center; }
-  .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--fl-green-light); }
-  .stat-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-top: 2px; }
+  .prizes-left-count {
+    color: var(--fl-green-light); font-weight: 800; font-size: 1.1rem;
+  }
 
   /* History panel */
   .history-section {
@@ -546,9 +545,8 @@
     .up-next-label { font-size: 0.75rem; }
     .up-next-name { font-size: 1rem; }
     .up-next-value { font-size: 0.9rem; }
-    .stats-bar { gap: 3rem; padding: 0.75rem 2.5rem; margin-top: 1.25rem; }
-    .stat-value { font-size: 1.6rem; }
-    .stat-label { font-size: 0.7rem; }
+    .prizes-left-line { font-size: 1rem; margin-top: 1.25rem; }
+    .prizes-left-count { font-size: 1.3rem; }
     .value-tally { max-width: 700px; margin-top: 1.25rem; }
     .tally-value { font-size: 1.8rem; }
     .tally-label { font-size: 0.7rem; }
@@ -583,8 +581,8 @@
     .draw-overlay-name { font-size: 2rem; }
     .draw-overlay-value { font-size: 1.2rem; }
     .draw-btn { padding: 0.85rem 2rem; font-size: 0.9rem; }
-    .stats-bar { gap: 1rem; flex-wrap: wrap; justify-content: center; padding: 0.75rem 1rem; }
-    .stat-value { font-size: 1.2rem; }
+    .prizes-left-line { font-size: 0.8rem; }
+    .prizes-left-count { font-size: 1rem; }
     .history-section { max-width: 100%; }
     .history-item { padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.25rem; }
     .winner-card .winner-name { font-size: 2.5rem; }
@@ -626,9 +624,8 @@
     .draw-overlay-name { font-size: 1.5rem; }
     .draw-overlay-value { font-size: 1rem; }
     .draw-btn { padding: 0.75rem 1.75rem; font-size: 0.85rem; letter-spacing: 0.1em; }
-    .stats-bar { gap: 0.5rem; padding: 0.6rem 0.75rem; margin-top: 1.25rem; }
-    .stat-value { font-size: 1rem; }
-    .stat-label { font-size: 0.55rem; letter-spacing: 0.1em; }
+    .prizes-left-line { font-size: 0.7rem; margin-top: 1rem; }
+    .prizes-left-count { font-size: 0.9rem; }
     .history-item .hi-name { font-size: 0.85rem; }
     .history-item .hi-prize { font-size: 0.7rem; }
     .winner-overlay { padding: 1rem; }
@@ -693,24 +690,9 @@
       <span class="up-next-value" id="upNextValue"></span>
     </div>
 
-    <!-- Stats -->
-    <div class="stats-bar">
-      <div class="stat">
-        <div class="stat-value" id="statParticipants">0</div>
-        <div class="stat-label">Remaining</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value" id="statTickets">0</div>
-        <div class="stat-label">Total Tickets</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value" id="statPrizes">0</div>
-        <div class="stat-label">Prizes Left</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value" id="statDrawn">0</div>
-        <div class="stat-label">Drawn</div>
-      </div>
+    <!-- Prizes left -->
+    <div class="prizes-left-line" id="prizesLeftLine">
+      <span class="prizes-left-count" id="statPrizes">0</span> prizes left to give away
     </div>
 
     <!-- Prize value tally -->
@@ -1218,10 +1200,7 @@ function updateUI() {
   const active = participants.filter(p => !p.won);
   const remainingPrizes = prizes.filter(p => !p.drawn && p.name.trim());
 
-  $('statParticipants').textContent = active.length;
-  $('statTickets').textContent = active.reduce((s, p) => s + p.tickets, 0);
   $('statPrizes').textContent = remainingPrizes.length;
-  $('statDrawn').textContent = history.length;
 
   const canDraw = active.length > 0 && remainingPrizes.length > 0 && !isSpinning;
   drawBtn.disabled = !canDraw;
