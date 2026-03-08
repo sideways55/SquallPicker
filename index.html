@@ -1595,7 +1595,7 @@ drawBtn.onclick = () => {
           let diff = normalizedTarget - normalizedAngle;
           if (diff > 0) diff -= Math.PI * 2;
           // Add extra full rotations for dramatic effect
-          const extraSpins = (3 + Math.floor(Math.random() * 3)) * Math.PI * 2;
+          const extraSpins = (1 + Math.floor(Math.random() * 2)) * Math.PI * 2;
           const totalRemaining = diff - extraSpins; // negative = clockwise
           // We'll decelerate over this distance
           const decelStart = angle;
@@ -1635,10 +1635,10 @@ drawBtn.onclick = () => {
 
   } else {
     // --- AUTO MODE ---
-    const totalRotation = (5 + Math.random() * 5) * Math.PI * 2;
+    const totalRotation = (2.5 + Math.random() * 2.5) * Math.PI * 2;
     const finalAngle = targetAngle;
     const startAngleVal = finalAngle - totalRotation;
-    const duration = 5000 + Math.random() * 2000;
+    const duration = 2500 + Math.random() * 1000;
     const startTime = performance.now();
 
     function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
