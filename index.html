@@ -280,7 +280,7 @@
   .winner-card .winner-prize-value {
     font-size: 1.8rem; color: var(--fl-green-light); margin-bottom: 2rem; font-weight: 700;
   }
-  .winner-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
+  .winner-actions { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; margin-top: 0.5rem; }
   .winner-card .close-winner-btn {
     background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
     color: #fff; padding: 0.75rem 2.5rem; border-radius: 999px; cursor: pointer;
@@ -1595,7 +1595,7 @@ drawBtn.onclick = () => {
           let diff = normalizedTarget - normalizedAngle;
           if (diff > 0) diff -= Math.PI * 2;
           // Add extra full rotations for dramatic effect
-          const extraSpins = (3 + Math.floor(Math.random() * 3)) * Math.PI * 2;
+          const extraSpins = (1 + Math.floor(Math.random() * 2)) * Math.PI * 2;
           const totalRemaining = diff - extraSpins; // negative = clockwise
           // We'll decelerate over this distance
           const decelStart = angle;
@@ -1635,10 +1635,10 @@ drawBtn.onclick = () => {
 
   } else {
     // --- AUTO MODE ---
-    const totalRotation = (5 + Math.random() * 5) * Math.PI * 2;
+    const totalRotation = (2.5 + Math.random() * 2.5) * Math.PI * 2;
     const finalAngle = targetAngle;
     const startAngleVal = finalAngle - totalRotation;
-    const duration = 5000 + Math.random() * 2000;
+    const duration = 2500 + Math.random() * 1000;
     const startTime = performance.now();
 
     function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
